@@ -21,7 +21,7 @@
   --bg:#eef2f3; --surface:#ffffff; --fg:#14232b; --muted:#5b6b73; --line:#d5dee2;
   --accent:#0b6e79; --accent-ink:#ffffff;
   --ok:#1d7a45; --ok-bg:#e3f4ea; --bad:#b3261e; --bad-bg:#fbe7e5; --blank:#8a6d10;
-  --t1:#d4a10a; --t2:#2f9e5b; --t3:#c2362f; --t4:#7a4fc9; --t5:#c23a78;
+  --hl:#d9eef0; --t1:#d4a10a; --t2:#2f9e5b; --t3:#c2362f; --t4:#7a4fc9; --t5:#c23a78;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -30,13 +30,13 @@
   --bg:#0f181c; --surface:#172429; --fg:#e4ecee; --muted:#93a4ab; --line:#2a3a40;
   --accent:#4cc3cf; --accent-ink:#06262a;
   --ok:#5fd08e; --ok-bg:#163527; --bad:#ff8a80; --bad-bg:#3a1c1a; --blank:#e3c25a;
-  --t1:#f0c43a; --t2:#5fd08e; --t3:#f07a72; --t4:#b49af0; --t5:#f07ab0;
+  --hl:#1d3d42; --t1:#f0c43a; --t2:#5fd08e; --t3:#f07a72; --t4:#b49af0; --t5:#f07ab0;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f181c; --surface:#172429; --fg:#e4ecee; --muted:#93a4ab; --line:#2a3a40;
   --accent:#4cc3cf; --accent-ink:#06262a;
   --ok:#5fd08e; --ok-bg:#163527; --bad:#ff8a80; --bad-bg:#3a1c1a; --blank:#e3c25a;
-  --t1:#f0c43a; --t2:#5fd08e; --t3:#f07a72; --t4:#b49af0; --t5:#f07ab0;
+  --hl:#1d3d42; --t1:#f0c43a; --t2:#5fd08e; --t3:#f07a72; --t4:#b49af0; --t5:#f07ab0;
   color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
@@ -93,6 +93,12 @@ h2{font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:upp
 .confirm{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .archive{margin-top:26px;border:1px dashed var(--line);border-radius:14px;padding:12px 14px}
 .archive summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.speed{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;padding:6px 12px;font:inherit;font-family:var(--mono);font-size:.8rem;cursor:pointer}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.au-text{margin-top:10px}.au-text summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+.para{margin:8px 0 0;padding:4px 6px;border-radius:6px;font-size:.92rem}
+.para.now{background:var(--hl)}
 .tips{margin:0;padding-left:1.1em}.tips li{margin:4px 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -370,7 +376,7 @@ const L="abcde";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function badge(t){const T=TEMAS[t];return `<span class="badge" style="color:${T.c}" aria-hidden="true">${T.el}<sub>${t}</sub></span>`}
-function setHeader(title,back){hTitle.textContent=title;backBtn.hidden=!back;window.scrollTo(0,0)}
+function setHeader(title,back){if(typeof stopAudio==="function"&&title!=="Audios por tema")stopAudio();hTitle.textContent=title;backBtn.hidden=!back;window.scrollTo(0,0)}
 backBtn.onclick=home;
 
 // ---------- INICIO ----------
@@ -398,6 +404,7 @@ function home(){
   <h2>Teoría</h2>
   <div class="list">
     <button class="row" data-act="mand"><span class="txt"><b>Los 20 mandamientos</b><span class="sub">Las 20 ideas clave + consejos para el V/F</span></span></button>
+    <button class="row" data-act="audio"><span class="txt"><b>Audios por tema</b><span class="sub">Resumen hablado de lo más importante de cada tema · ~2 min</span></span></button>
   </div>
   <h2>Repaso</h2>
   <div class="list">
@@ -427,6 +434,7 @@ function home(){
     if(a=="sim8")startQuiz({title:"Simulacro",qs:sim8(),mode:"exam",gen:sim8});
     if(a=="sim20")startQuiz({title:"Simulacro largo",qs:shuffle(sim20()),mode:"exam",gen:()=>shuffle(sim20())});
     if(a=="mand")mandView();
+    if(a=="audio")audioView();
     if(a=="prob")startQuiz({title:"Más probables",qs:shuffle(PROBABLES.map(id=>BYID[id])),mode:"inst"});
     if(a=="fail")failView();
     if(a=="stats")statsView();
@@ -523,6 +531,108 @@ function finishExam(){
   document.getElementById("again").onclick=()=>startQuiz({title,qs:gen?gen():Q.qs,mode:"exam",gen});
 }
 function revCard(q,k){const T=TEMAS[q.t];return `<div class="rev"><span class="tag" style="color:${T.c}">T${q.t} · ${T.el}</span><p class="q">${esc(q.q)}</p>${expBlock(q,k)}</div>`}
+
+// ---------- AUDIOS (voz del sistema, guion por tema) ----------
+const AUDIOS={
+1:["Tema uno, introducción a la industria química. Lo más importante.",
+"Primero, los tres tipos de industria química: básica, transformadora y para la salud. La básica parte de materias primas y obtiene productos básicos. La transformadora convierte esos productos en productos de consumo final. En España se reparten un treinta y cinco, un treinta y tres y un treinta y dos por ciento.",
+"Segundo, las operaciones básicas, que son las mismas en cualquier proceso. Las físicas son filtración, sedimentación, evaporación, rectificación, absorción, cristalización y liofilización. Las químicas son cloración, oxidación, hidrólisis y nitración. Si te dicen que la rectificación o la cristalización son químicas, es falso.",
+"Tercero, los diagramas. El PFD es el general, con las operaciones y equipos principales, y sirve para formar a trabajadores nuevos. El P y I D es el detallado, con toda la instrumentación y el control.",
+"Cuarto, los procesos. Lo normal en planta es el proceso continuo. El discontinuo, o batch, es típico del laboratorio y de la industria farmacéutica. El semicontinuo es un continuo con alguna operación discontinua, como limpiar filtros.",
+"Quinto, la normativa. El ADR regula el transporte de mercancías peligrosas por carretera. La APQ regula el almacenamiento en Cataluña. La clasificación y el etiquetado van por el GHS y el REACH CLP.",
+"Sexto, España. Es la quinta de la Unión Europea, Cataluña hace casi la mitad de la producción, y la mayoría de empresas son pymes. El retraso histórico se debió al aislamiento, a la falta de inversión extranjera y al proteccionismo arancelario.",
+"Séptimo, la historia. Los orígenes tienen más de cinco mil años. La revolución industrial, en el siglo dieciocho, cambió la escala. En el siglo diecinueve hubo un gran crecimiento en Europa. Y desde mil novecientos cincuenta llegan el boom de la petroquímica y la economía de escala.",
+"Y por último, las materias primas. Pirita, ácido sulfúrico. Caliza, cemento. Sílice, vidrio. Nitrógeno del aire, amoníaco. El agua es medio de reacción y fluido térmico. Y de la biosfera, por ejemplo, la lanolina de la lana y los cosméticos de las algas."],
+2:["Tema dos, destilación. Lo más importante.",
+"La destilación separa por diferencia de volatilidades. La clave es la volatilidad relativa, alfa. Si alfa es mayor que uno, la mezcla se puede separar. Si alfa es igual a uno, no se puede: es un azeótropo, donde el líquido y el vapor tienen la misma composición.",
+"No confundas las leyes. Raoult va con el líquido: presión parcial igual a x por la presión de vapor del componente puro. Dalton va con el vapor: presión parcial igual a y por la presión total.",
+"Tipos de destilación. La diferencial es la más simple y casi no se usa; en discontinuo no es estacionaria. La flash es una sola etapa de equilibrio: el vapor está en equilibrio con el residuo, no con la alimentación, y se usa sobre todo con mezclas multicomponente, como el crudo.",
+"La rectificación es la columna con platos. Los platos de campanas son los más usados. El método de McCabe Thiele supone que en cada plato se alcanza el equilibrio y que el caudal molar es constante dentro de cada sección.",
+"El valor de q describe la alimentación. Líquido frío, mayor que uno. Líquido a ebullición, uno. Mezcla de líquido y vapor, entre cero y uno. Vapor saturado, cero. Vapor recalentado, negativo. La línea q pasa por el punto x F, x F.",
+"La recta de enriquecimiento corta la diagonal en x D, la de agotamiento en x R, y las dos se cruzan sobre la línea q.",
+"Y el reflujo. A reflujo total el número de etapas es mínimo, y se calcula con Fenske. A reflujo mínimo hacen falta infinitas etapas. El óptimo económico está entre uno coma dos y uno coma cinco veces el mínimo. Más reflujo significa menos etapas, pero equipos más grandes y caros.",
+"Para acabar: los platos reales son los teóricos divididos por la eficiencia, redondeando hacia arriba. Y en mezclas multicomponente, las volatilidades se refieren al componente clave pesado."],
+3:["Tema tres, petróleo y petroquímica. Lo más importante.",
+"El petróleo viene de la descomposición anaerobia de materia orgánica, y sus hidrocarburos son parafínicos, nafténicos y aromáticos. La mayoría se usa como energía; solo un diez por ciento va a síntesis orgánica. Venezuela tiene más reservas, y España produce menos del cero coma cero tres por ciento de lo que consume.",
+"Antes del transporte, en el pretratamiento, hay dos etapas. La desalinización quita las sales. La estabilización quita los gases disueltos. Si te dicen que la estabilización quita sales, o que se puede hacer después del transporte, es falso.",
+"Ya en la refinería, el topping es la destilación atmosférica: da gases, GLP, gasolinas, queroseno y gasoil. El residuo va a la destilación al vacío, que da gasoil, fueloil, lubricantes, asfaltos y ceras. La gasolina no sale del vacío.",
+"El craqueo rompe cadenas largas en otras más ligeras. El catalítico, o FCC, usa zeolita y un doble lecho fluidizado: reactor y regenerador. El hidrocraqueo añade hidrógeno a alta presión: evita el coque y reduce el azufre.",
+"El reformado no rompe cadenas. Convierte las naftas en ramificados y aromáticos para subir el índice de octano. Usa platino, por eso se llama platforming. Sus reacciones son endotérmicas, y produce aromáticos BTX e hidrógeno. El azufre envenena el platino, así que primero se desulfura.",
+"El hidrotratamiento quita azufre, no agua. Pasa el azufre a sulfuro de hidrógeno, y el proceso Claus lo convierte en azufre elemental.",
+"Índices: octano para gasolinas, cetano para gasoil. Productos: gasóleo A y B para motores, gasóleo C para calefacción, y GLP para uso doméstico.",
+"Y la petroquímica es una industria transformadora. Su primer producto fue el isopropanol. Del etileno salen sobre todo plásticos, del benceno el nylon, y del xileno el PET."],
+4:["Tema cuatro, cinética y reactores. Lo más importante.",
+"La velocidad de reacción depende de la constante k y de las concentraciones. La k sigue la ecuación de Arrhenius y depende sobre todo de la temperatura: cuanto mayor es la energía de activación, más lenta es la reacción. En el equilibrio químico la velocidad es cero.",
+"El orden de reacción no tiene por qué coincidir con la estequiometría. Puede ser entero, fraccionario o negativo, y se determina experimentalmente.",
+"La conversión no tiene unidades y va de cero a uno. El reactivo limitante es el que está en menor proporción estequiométrica: divide los moles por el coeficiente, y el menor es el limitante.",
+"Pseudoprimer orden: cuando un reactivo, como el agua disolvente, está en gran exceso, su concentración casi no cambia y se mete dentro de la constante.",
+"Los tres reactores ideales. El batch no tiene entradas ni salidas, trabaja en estado no estacionario y no se define tiempo de residencia. El CSTR es de mezcla perfecta, estacionario, y su interior tiene la misma concentración que la salida. El PFR es tubular y estacionario, y sus propiedades cambian con la posición, no con el tiempo.",
+"El tiempo espacial es el volumen dividido por el caudal de entrada, y solo existe en reactores continuos.",
+"Comparación: para la misma conversión, el PFR necesita menos volumen que el CSTR. Muchos CSTR en serie se comportan como un PFR. Y en paralelo, lo óptimo es que todos tengan el mismo tiempo espacial.",
+"Balance de energía: si el calor intercambiado es cero, el reactor es adiabático. Si menos delta H de reacción es positivo, la reacción es exotérmica."],
+5:["Tema cinco, tecnología de membranas. Lo más importante.",
+"Una membrana es una fase intermedia permeoselectiva: deja pasar unos componentes más rápido que otros gracias a una fuerza impulsora. Se clasifican por naturaleza, por estructura y por el tipo de transporte. Las de intercambio iónico son densas, no porosas.",
+"Tres parámetros. La recuperación es el caudal de permeado entre el de alimentación. El factor de rechazo es uno menos la concentración del permeado entre la de la alimentación. Y el factor de concentración es la concentración del rechazo entre la de la alimentación.",
+"Flujo de disolvente: es proporcional a la presión hidráulica menos la presión osmótica, porque la presión osmótica se opone al paso del disolvente. Flujo de soluto: depende solo de la diferencia de concentraciones, no de la presión. Por eso, al subir la presión, aumenta el factor de rechazo.",
+"En la ecuación de Van't Hoff, el número de iones: cloruro de sodio, dos; cloruro de magnesio, tres; carbonato de sodio, tres.",
+"La polarización es la acumulación de soluto en la pared de la membrana, en el lado del rechazo, compensada por difusión. Se desprecia si el factor es menor que cero coma uno. Se reduce con turbulencia y deflectores, pero no se elimina.",
+"El ensuciamiento es la capa de gel de coloides y macromoléculas. Una vez formada, subir la presión no aumenta el flujo, solo engorda la capa. Lo mejor es trabajar a presión intermedia, y la limpieza no siempre recupera el flujo inicial.",
+"Aplicaciones. Ultrafiltración, de uno a diez bar, para macromoléculas y proteínas, como el suero del queso. Ósmosis inversa para desalar agua de mar, de cincuenta a ochenta bar. Y separación de gases, que funciona por diferencia de presión: hidrógeno, oxígeno y nitrógeno, o gas natural."]
+};
+const HAS_TTS=typeof window!=="undefined"&&"speechSynthesis" in window;
+const AU={t:null,i:0,list:[],playing:false,cur:null,rate:1};
+try{AU.rate=+localStorage.getItem("tq-rate")||1}catch(e){}
+function esVoice(){const v=speechSynthesis.getVoices();return v.find(x=>/^es[-_]ES/i.test(x.lang))||v.find(x=>/^es/i.test(x.lang))||null}
+function audioSentences(t){return AUDIOS[t].flatMap((p,pi)=>(p.match(/[^.!?:;]+[.!?:;]+|[^.!?:;]+$/g)||[p]).map(s=>({s:s.trim(),pi})).filter(x=>x.s))}
+function audioMinutes(t){return Math.max(1,Math.round(AUDIOS[t].join(" ").split(/\s+/).length/150))}
+function stopAudio(){AU.playing=false;AU.cur=null;AU.i=0;AU.t=null;if(HAS_TTS){try{speechSynthesis.cancel()}catch(e){}}}
+function speakNext(){
+  if(!AU.playing)return;
+  if(AU.i>=AU.list.length){AU.playing=false;AU.i=0;audioPaint();return}
+  const it=AU.list[AU.i],u=new SpeechSynthesisUtterance(it.s);
+  u.lang="es-ES";const v=esVoice();if(v)u.voice=v;u.rate=AU.rate;
+  const go=()=>{if(AU.cur===u&&AU.playing){AU.i++;speakNext()}};
+  u.onend=go;u.onerror=go;AU.cur=u;speechSynthesis.speak(u);audioPaint();
+}
+function audioPlay(t){
+  if(AU.t!==t){if(HAS_TTS)speechSynthesis.cancel();AU.t=t;AU.list=audioSentences(t);AU.i=0}
+  AU.playing=true;speakNext();
+}
+function audioPause(){AU.playing=false;AU.cur=null;speechSynthesis.cancel();audioPaint()}
+function audioRestart(t){if(HAS_TTS)speechSynthesis.cancel();AU.t=t;AU.list=audioSentences(t);AU.i=0;AU.cur=null;AU.playing=true;speakNext()}
+function audioPaint(){
+  document.querySelectorAll("[data-au]").forEach(card=>{
+    const t=+card.dataset.au,mine=AU.t===t,now=mine&&AU.playing,mid=mine&&!AU.playing&&AU.i>0;
+    card.querySelector(".au-play").textContent=now?"Pausa":mid?"Continuar":"Escuchar";
+    card.querySelector(".au-play").setAttribute("aria-pressed",now?"true":"false");
+    card.querySelector(".au-restart").hidden=!(mine&&AU.i>0);
+    const pi=mine&&AU.list[AU.i]?AU.list[AU.i].pi:-1;
+    card.querySelectorAll(".para").forEach((p,k)=>p.classList.toggle("now",mine&&(AU.playing||AU.i>0)&&k===pi));
+    const bar=card.querySelector(".au-bar i");bar.style.width=(mine&&AU.list.length?100*AU.i/AU.list.length:0)+"%";
+  });
+}
+function audioView(){
+  setHeader("Audios por tema",true);
+  if(!HAS_TTS){app.innerHTML=`<p class="empty">Este navegador no permite leer texto en voz alta. Abre la app en Safari (iPhone) o Chrome (Android).</p>`;return}
+  const rates=[0.9,1,1.15,1.3];
+  app.innerHTML=`<p class="sub" style="margin-top:16px">Un resumen hablado de cada tema con la voz en castellano del móvil. Funciona sin conexión. Si no oyes nada, quita el modo silencio.</p>
+  <div class="speed" role="group" aria-label="Velocidad">${rates.map(r=>`<button class="chip${r===AU.rate?" on":""}" data-rate="${r}">${String(r).replace(".",",")}×</button>`).join("")}</div>
+  <div class="list">${Object.keys(TEMAS).map(t=>`<div class="stat au" data-au="${t}" style="border-left:4px solid ${TEMAS[t].c}">
+    <div class="top"><b>Tema ${t}. ${TEMAS[t].n}</b><span class="pct">~${audioMinutes(t)} min</span></div>
+    <div class="meter au-bar"><i style="width:0;background:${TEMAS[t].c}"></i></div>
+    <div class="actions" style="margin-top:10px"><button class="btn au-play" aria-pressed="false">Escuchar</button><button class="btn ghost au-restart" hidden>Desde el principio</button></div>
+    <details class="au-text"><summary>Ver el texto</summary>${AUDIOS[t].map(p=>`<p class="para">${esc(p)}</p>`).join("")}</details>
+  </div>`).join("")}</div>`;
+  app.querySelectorAll("[data-au]").forEach(card=>{const t=+card.dataset.au;
+    card.querySelector(".au-play").onclick=()=>{if(AU.t===t&&AU.playing)audioPause();else audioPlay(t)};
+    card.querySelector(".au-restart").onclick=()=>audioRestart(t);
+  });
+  app.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{AU.rate=+b.dataset.rate;try{localStorage.setItem("tq-rate",AU.rate)}catch(e){}
+    app.querySelectorAll("[data-rate]").forEach(x=>x.classList.toggle("on",x===b));
+    if(AU.playing){const t=AU.t;audioPause();audioPlay(t)}});
+  if(HAS_TTS&&speechSynthesis.getVoices().length===0)speechSynthesis.onvoiceschanged=()=>{};
+  audioPaint();
+}
 
 // ---------- MANDAMIENTOS ----------
 function mandView(){
