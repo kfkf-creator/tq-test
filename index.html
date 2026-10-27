@@ -91,6 +91,9 @@ h2{font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:upp
 .rev .q{font-size:.95rem;margin:4px 0 6px}
 .small{font-size:.85rem}
 .confirm{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.archive{margin-top:26px;border:1px dashed var(--line);border-radius:14px;padding:12px 14px}
+.archive summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tips{margin:0;padding-left:1.1em}.tips li{margin:4px 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -237,7 +240,95 @@ const NUEVAS=[
 [5,"Señala el planteamiento correcto del problema general de diseño:",["Conocidos Ad, Bs, QF y CFs, e impuestos QP y CPs, se determinan P, Sm, QR y CRs.","Conocidos P y Sm se determinan Ad y Bs.","Se impone CRs y se calcula CPs.","Ad y Bs son incógnitas del diseño.","Se conocen QR y CRs y se calcula QF."],0,"Ad y Bs son propiedades de la membrana (datos). Las ecuaciones salen de los balances global y de soluto."]
 ].map((r,i)=>({id:"n"+(i+1),t:r[0],q:r[1],o:r[2],a:r[3],e:r[4],src:"nueva"}));
 
-const ALL=[...REPASO,...EXAMEN,...NUEVAS];
+// ---------- BANCO NUEVO V/F (formato del examen final confirmado) ----------
+const VFN=[
+// TEMA 1
+[1,"La industria química transformadora convierte productos básicos en productos para el consumo final.",0,"Básica: de materia prima a productos básicos/intermedios. Transformadora: de esos productos a productos de consumo final. Salud: farmacia."],
+[1,"Las operaciones básicas son esencialmente las mismas independientemente del proceso en el que se apliquen.",0,"Es la definición de operación unitaria: operaciones específicas que se repiten sistemáticamente y son iguales sea cual sea el proceso."],
+[1,"La hidrólisis y la nitración son operaciones básicas físicas.",1,"Son QUÍMICAS (junto con cloración y oxidación). Físicas: filtración, sedimentación, fluidización, evaporación, rectificación, absorción, cristalización, liofilización."],
+[1,"En la industria farmacéutica los procesos suelen ser continuos.",1,"La farmacéutica es la excepción típica: sus procesos suelen ser DISCONTINUOS (batch). Lo normal en una planta química es el continuo."],
+[1,"Un proceso semicontinuo es un proceso continuo que incluye operaciones discontinuas, como limpiar filtros cada cierto tiempo.",0,"Es la definición de semibatch o semicontinuo del tema 1."],
+[1,"El PFD incluye toda la instrumentación y los lazos de control de la planta.",1,"Eso es el P&ID. El PFD solo recoge las operaciones principales con las corrientes y equipos más importantes."],
+[1,"La normativa ADR regula el almacenamiento de productos químicos en Cataluña.",1,"El ADR regula el TRANSPORTE por carretera de mercancías peligrosas (RD 97/2014). El almacenamiento en Cataluña lo regula la APQ."],
+[1,"Cataluña concentra casi la mitad de la producción química española.",0,"Dato FEIQUE del tema 1: Cataluña es responsable de casi la mitad de la producción estatal."],
+[1,"El retraso de la industria química española se debió, entre otros motivos, al proteccionismo arancelario.",0,"Causas del retraso: fuerte aislamiento, falta de inversión extranjera y proteccionismo arancelario."],
+[1,"La sílice se utiliza principalmente para producir cemento.",1,"Sílice o cuarzo → vidrio. Roca caliza → cemento. Pirita → ácido sulfúrico."],
+[1,"El nitrógeno del aire se separa mediante un proceso criogénico y se usa para producir amoníaco.",0,"Aire: separación criogénica de N2 (NH3, gas inerte, refrigerante), O2 (combustión, oxidación) y gases nobles."],
+[1,"La economía de escala hace que los costes de inversión crezcan en la misma proporción que la producción.",1,"Justo lo contrario: reduce los costes de producción sin que inversión y fabricación aumenten en la misma proporción."],
+[1,"La química para la salud corresponde a la categoría 21 de la CNAE.",0,"Básica y transformadora: categoría 20. Salud: categoría 21."],
+[1,"La lactosa de la leche se utiliza en la fabricación de antibióticos.",0,"Leche: productos lácteos, caseína (fibras textiles), lactosa (antibióticos), ácido láctico (piensos)."],
+// TEMA 2
+[2,"La destilación se basa en la diferencia de volatilidades (presiones de vapor) de los componentes.",0,"Definición del tema 2: separación por evaporación y condensación sucesivas aprovechando la diferencia de volatilidades."],
+[2,"Si la volatilidad relativa es igual a 1, la mezcla se puede separar fácilmente por destilación.",1,"Con α = 1 el vapor tiene la misma composición que el líquido: NO se puede separar por destilación (caso azeotrópico). Separable si α > 1."],
+[2,"En un azeótropo la composición del líquido que hierve y la del vapor formado son iguales.",0,"Por eso no se puede pasar de un lóbulo a otro con destilaciones sucesivas. Ejemplo: etanol-agua a x = 0,89."],
+[2,"La ley de Raoult relaciona la presión parcial de un componente con su fracción molar en el vapor y la presión total.",1,"Eso es Dalton: pi = yi·P. Raoult relaciona la presión parcial con la fracción molar en el LÍQUIDO: pi = xi·Pi0."],
+[2,"En la destilación flash, el vapor que sale está en equilibrio con el residuo líquido.",0,"El flash es una etapa de equilibrio: (yD, xR) en equilibrio. No con la alimentación."],
+[2,"La destilación diferencial discontinua trabaja en estado estacionario.",1,"Trabaja en estado NO estacionario: composiciones y temperatura de ebullición cambian con el tiempo. La versión continua sí es estacionaria."],
+[2,"Una alimentación de vapor saturado tiene q = 1.",1,"Vapor saturado: q = 0. Líquido a ebullición: q = 1. Líquido frío > 1, mezcla 0-1, vapor recalentado < 0."],
+[2,"Una alimentación de líquido subenfriado tiene q > 1.",0,"Hay que aportar calor para llevarla a ebullición, así que condensa parte del vapor del plato: q > 1."],
+[2,"Con reflujo total se obtiene el número mínimo de etapas teóricas.",0,"r = ∞: la recta de operación coincide con la diagonal y las etapas son mínimas (Fenske), pero D = 0."],
+[2,"Con la relación de reflujo mínima se necesitan infinitas etapas.",0,"A rmin las rectas de operación tocan la curva de equilibrio en (xE, yE) y los escalones nunca la superan."],
+[2,"Al aumentar la relación de reflujo disminuyen el tamaño y el coste de la caldera y el condensador.",1,"Al aumentar r aumentan los caudales internos y con ellos el tamaño y coste de caldera, columna y condensador. Lo que disminuye es el número de etapas."],
+[2,"La relación de reflujo óptima suele estar entre 1,2 y 1,5 veces la mínima.",0,"Compromiso económico entre coste de equipos (r alto) y número de etapas (r bajo)."],
+[2,"El método de McCabe-Thiele supone que en cada plato no se alcanza el equilibrio.",1,"Supone que SÍ se alcanza (etapas teóricas). La realidad, sin equilibrio, se corrige con la eficacia: N reales = N teóricos/η."],
+[2,"La recta de enriquecimiento corta la diagonal en xD.",0,"Enriquecimiento en (xD, xD); agotamiento en (xR, xR); línea q en (xF, xF)."],
+[2,"El plato de campanas es el tipo de plato más utilizado.",0,"Tres tipos: campanas (el más usado), válvulas y perforados (agujeros de 5-10 mm)."],
+[2,"En una mezcla multicomponente, las volatilidades relativas se toman respecto al componente clave ligero.",1,"Se toman respecto al clave PESADO, al que se le asigna α = 1."],
+// TEMA 3
+[3,"El petróleo se origina por la descomposición anaerobia de materia animal y vegetal.",0,"Literal del tema 3. Es una mezcla de miles de compuestos sólidos, líquidos y gaseosos."],
+[3,"La mayor parte del petróleo extraído se utiliza en síntesis orgánica.",1,"Solo un 10 % va a síntesis orgánica; la mayoría se usa como fuente de energía. (Aunque el 90-95 % de los productos orgánicos derivan de petróleo y gas.)"],
+[3,"Venezuela es el país con más reservas probadas de petróleo.",0,"1º Venezuela, 2º Arabia Saudí, 3º Irán (OPEP 2025)."],
+[3,"España cubre con producción propia una parte importante de su consumo de petróleo.",1,"La producción autóctona fue inferior al 0,03 % del consumo; se importa de Nigeria, México, EE. UU., Libia..."],
+[3,"La desalinización elimina los gases disueltos en el crudo.",1,"La desalinización elimina SALES (lavado, 120-150 ºC a presión, decantación). Los gases los elimina la estabilización."],
+[3,"En el topping el crudo se calienta previamente en un horno a 350-370 ºC.",0,"Con tiempos de residencia cortos para evitar el craqueo y la formación de coque. Luego entra a P atmosférica por la parte baja de la torre."],
+[3,"La destilación al vacío permite obtener lubricantes y asfaltos.",0,"Vacío (35-130 mmHg, 400 ºC): gasoil, fueloil, lubricantes, asfaltos, ceras y residuo."],
+[3,"El craqueo catalítico (FCC) utiliza un catalizador de platino.",1,"El FCC usa zeolita ácida (85 % sílice, 15 % alúmina). El platino es del reformado (platforming)."],
+[3,"El hidrocraqueo trabaja a presiones elevadas en presencia de hidrógeno.",0,"140-200 atm y ~400 ºC. El H2 evita la coquificación del catalizador y reduce el azufre."],
+[3,"Las reacciones del reformado catalítico son exotérmicas.",1,"Son ENDOTÉRMICAS (490-530 ºC, 10-25 bar)."],
+[3,"El azufre y el nitrógeno son venenos del catalizador de platino del reformado.",0,"Por eso la primera parte del reformado es la desulfuración de la nafta."],
+[3,"En el proceso Claus el H2S se transforma en azufre elemental.",0,"3H2S + 3/2 O2 → 3S + 3H2O, a P atmosférica, con aire y catalizador de bauxita. El H2S viene del hidrotratamiento."],
+[3,"El índice de cetano se utiliza para caracterizar las gasolinas.",1,"Gasolina → índice de OCTANO (resistencia a detonar). Gasoil → índice de CETANO (autoignición)."],
+[3,"La petroquímica es una industria química básica.",1,"Es una industria química TRANSFORMADORA (de hidrocarburos a productos)."],
+[3,"El primer producto petroquímico fue el isopropanol.",0,"Isopropanol en 1920. La petroquímica llegó a Europa en los años 50."],
+[3,"El PET se obtiene a partir del xileno.",0,"Xileno → paraxileno → ácido tereftálico → PET. Tolueno → TNT, poliuretano. Benceno → nylon."],
+// TEMA 4
+[4,"Un sistema en equilibrio químico tiene velocidad de reacción nula.",0,"La cinética se aplica a sistemas fuera del equilibrio; en el equilibrio rj = 0."],
+[4,"El orden de una reacción coincide siempre con sus coeficientes estequiométricos.",1,"El orden es independiente de la estequiometría; depende del mecanismo y se determina experimentalmente. Puede ser fraccionario o negativo."],
+[4,"La constante cinética k depende principalmente de la temperatura.",0,"Arrhenius: k = A·exp(−Ea/RT). Es independiente del tiempo y de las concentraciones."],
+[4,"Cuanto mayor es la energía de activación, más rápida es la reacción.",1,"Mayor Ea → más energía a superar → reacción más LENTA."],
+[4,"La conversión es adimensional y varía entre 0 y 1.",0,"X = (NA0 − NA)/NA0. No tiene unidades."],
+[4,"El reactivo limitante es el que está en mayor cantidad estequiométrica.",1,"Es el que está en MENOR cantidad estequiométrica (menor moles/coeficiente) y fija la cantidad de producto."],
+[4,"El reactor batch (BR) trabaja en estado no estacionario.",0,"Sin entradas ni salidas; las concentraciones cambian con el tiempo. No se define tiempo de residencia."],
+[4,"En un CSTR la concentración en el interior es igual a la de la corriente de salida.",0,"Por la mezcla perfecta e instantánea, las propiedades de la salida son las del interior."],
+[4,"Un PFR trabaja en estado no estacionario porque sus propiedades cambian a lo largo del reactor.",1,"El PFR es ESTACIONARIO: varía con la posición, no con el tiempo."],
+[4,"El tiempo espacial se define como τ = V/Q0.",0,"Tiempo en llenar el volumen V con el caudal de entrada. Si la densidad es constante, coincide con el tiempo de residencia."],
+[4,"Para la misma conversión y alimentación, un CSTR necesita menos volumen que un PFR.",1,"Es al revés: el PFR necesita MENOS volumen (área bajo la curva 1/(−rA) frente al rectángulo del CSTR)."],
+[4,"Muchos CSTR en serie se comportan como un PFR.",0,"Con n elevado la escalera de rectángulos se aproxima al área bajo la curva."],
+[4,"En una reacción de pseudoprimer orden uno de los reactivos está en gran exceso.",0,"Su concentración apenas cambia (p. ej. agua disolvente) y se integra en kap: (−rA) ≈ kap·CA."],
+[4,"Si Q = 0 en el balance de energía, el reactor es adiabático.",0,"Q > 0 aporte de calor, Q < 0 refrigeración, Q = 0 adiabático."],
+[4,"Si (−ΔHr) es positivo, la reacción es endotérmica.",1,"(−ΔHr) > 0 → EXOTÉRMICA. (−ΔHr) < 0 → endotérmica."],
+// TEMA 5
+[5,"Una membrana es una fase intermedia permeoselectiva que separa dos fases.",0,"Y se opone al transporte de componentes según su selectividad, gracias a una fuerza impulsora."],
+[5,"Las membranas de intercambio iónico son membranas porosas.",1,"Son DENSAS (catiónicas o aniónicas). Las porosas se dividen según el flujo en fase gas (Knudsen, viscoso) o líquida (difusión)."],
+[5,"El factor de rechazo se calcula como rs = 1 − CPs/CFs.",0,"Recuperación r = QP/QF; rechazo rs = 1 − CPs/CFs; factor de concentración FC = CRs/CFs."],
+[5,"La recuperación es el cociente entre el caudal de rechazo y el de alimentación.",1,"La recuperación es QP/QF (permeado entre alimentación)."],
+[5,"La presión osmótica favorece el paso del disolvente a través de la membrana.",1,"Se OPONE: jd = Ad·(ΔPh − Δπ). Hay que aplicar una presión mayor que la osmótica."],
+[5,"El flujo de soluto depende de la diferencia de concentraciones y no de la presión.",0,"js = Bs·(CFs − CPs). Por eso al subir la presión el permeado sale más puro."],
+[5,"Al aumentar la presión de trabajo aumenta el factor de rechazo.",0,"rs = Ad·ΔP/(Ad·ΔP + Bs): sube jd pero no js."],
+[5,"Para el MgCl2, el número de iones en la ecuación de Van't Hoff es 2.",1,"MgCl2 (MX2) da 3 iones. NaCl (MX): 2. Na2CO3 (M2X): 3."],
+[5,"La polarización es la acumulación de soluto en la pared de la membrana, en el lado del rechazo.",0,"La provoca el flujo de disolvente que arrastra soluto hacia la pared; en estacionario se compensa con difusión en sentido contrario."],
+[5,"Si el factor de polarización es menor que 0,1, su efecto puede despreciarse.",0,"Criterio del tema: Γ < 0,1 → despreciable."],
+[5,"Aumentar la turbulencia con deflectores elimina completamente la polarización.",1,"La REDUCE bastante, pero no la elimina."],
+[5,"Una vez formada la capa de gel, aumentar la presión aumenta el flujo de permeado.",1,"Solo aumenta el grosor del gel, que además puede consolidarse (ensuciamiento permanente). Mejor operar entre P2 y P3."],
+[5,"La ultrafiltración trabaja a presiones entre 1 y 10 bar.",0,"Retiene partículas de 0,01-0,1 µm (bacterias, virus, proteínas), normalmente en flujo tangencial."],
+[5,"La ósmosis inversa de agua de mar trabaja a presiones de 50-80 bar.",0,"Agua salobre: desde 500 mg/L de sal (típico 1.000-10.000 mg/L). Límite de boro: 0,7 mg/L."],
+[5,"La fuerza impulsora en la separación de gases es una diferencia de potencial eléctrico.",1,"Es una diferencia de PRESIÓN entre alimentación y permeado. El potencial eléctrico es de la electrodiálisis."]
+].map((r,i)=>({id:"v"+(i+1),t:r[0],q:r[1],o:VF,a:r[2],e:r[3],src:"vf",vf:true}));
+const VF_ALL=[...REPASO,...VFN];
+// Las más importantes en V/F: las 20 oficiales (pueden repetirse) + conceptos clave de cada tema
+const VF_TOP=[...REPASO.map(q=>q.id),"v1","v3","v6","v7","v10","v16","v18","v19","v21","v23","v24","v25","v27","v31","v35","v38","v40","v43","v44","v48","v50","v53","v55","v57","v61","v65","v66","v67","v69","v73","v74","v76"];
+
+const ALL=[...REPASO,...EXAMEN,...NUEVAS,...VFN];
 // Selección prioritaria: conceptos que ya han salido en el material oficial o que lo rozan, con el peso por temas del examen modelo
 const PROBABLES=["n2","n3","n4","n5","n6","n9","n11","n14","n16","n18","n19","n26","n30","n32","n34","n37","n38","n40","n45","n46","n48","n50","n54","n63","n70","n73","n74"];
 const MANDAMIENTOS=[
@@ -287,45 +378,54 @@ function home(){
   setHeader("Tecnologia Química · Test",false);
   const tot=Object.values(S.q).reduce((a,r)=>a+r.n,0),ok=Object.values(S.q).reduce((a,r)=>a+r.ok,0);
   const nf=failedIds().length;
-  const rowsT=Object.keys(TEMAS).map(t=>{const s=temaStats(t);const nn=NUEVAS.filter(q=>q.t==t).length;
-    return `<button class="row" data-act="tema" data-t="${t}">${badge(t)}<span class="txt"><b>Tema ${t}. ${TEMAS[t].n}</b><span class="sub">${nn} preguntas nuevas · 5 opciones</span></span><span class="pct">${s.pct==null?"–":s.pct+" %"}</span></button>`}).join("");
+  const rowsVF=Object.keys(TEMAS).map(t=>{const set=VF_ALL.filter(q=>q.t==t);
+    return `<button class="row" data-act="vftema" data-t="${t}">${badge(t)}<span class="txt"><b>Tema ${t}. ${TEMAS[t].n}</b><span class="sub">${set.length} V/F${t==1||t==3?" (incluye las oficiales)":""}</span></span><span class="pct">${pctSet(set)}</span></button>`}).join("");
+  const rowsMC=Object.keys(TEMAS).map(t=>`<button class="row" data-act="tema" data-t="${t}">${badge(t)}<span class="txt"><b>Tema ${t}</b><span class="sub">${NUEVAS.filter(q=>q.t==t).length} preguntas · 5 opciones</span></span><span class="pct">${pctSet(NUEVAS.filter(q=>q.t==t))}</span></button>`).join("");
   app.innerHTML=`
   <div class="hero">
     <div class="big">${tot?Math.round(100*ok/tot)+" %":"–"}</div>
     <div class="sub">${tot?`Aciertos globales en ${tot} respuestas. ${nf} pregunta${nf==1?"":"s"} pendiente${nf==1?"":"s"} de repasar.`:"Aún no has respondido nada. Empieza por el material oficial."}</div>
   </div>
-  <h2>Material oficial (tal cual)</h2>
+  <h2>Examen: 10 verdadero / falso</h2>
   <div class="list">
-    <button class="row official" data-act="repaso"><span class="txt"><b>Preguntas de repaso · V/F</b><span class="sub">20 preguntas · temas 1 y 3 · con solución oficial</span></span><span class="pct">${pctSet(REPASO)}</span></button>
-    <button class="row official" data-act="examen"><span class="txt"><b>Examen final modelo · test</b><span class="sub">8 preguntas · solucionario oficial · +1 / −0,2 / en blanco 0</span></span><span class="pct">${pctSet(EXAMEN)}</span></button>
+    <button class="row official" data-act="vfsimtop"><span class="txt"><b>Simulacro · las más importantes</b><span class="sub">10 V/F de las ${VF_TOP.length} con más papeletas (2 por tema) · corrección al final</span></span></button>
+    <button class="row official" data-act="vfsim"><span class="txt"><b>Simulacro · temas mezclados</b><span class="sub">10 V/F al azar, 2 por tema · corrección al final</span></span></button>
+    <button class="row official" data-act="repaso"><span class="txt"><b>Preguntas de repaso oficiales</b><span class="sub">Las 20 V/F tal cual · temas 1 y 3</span></span><span class="pct">${pctSet(REPASO)}</span></button>
+    <button class="row official" data-act="vfall"><span class="txt"><b>Todas las V/F</b><span class="sub">Las ${VF_ALL.length} al azar · corrección en cada una</span></span><span class="pct">${pctSet(VF_ALL)}</span></button>
   </div>
-  <h2>Si vas justo de tiempo</h2>
+  <h2>V/F por temas</h2>
+  <div class="list">${rowsVF}</div>
+  <h2>Teoría</h2>
   <div class="list">
-    <button class="row official" data-act="mand"><span class="txt"><b>Los 20 mandamientos</b><span class="sub">Las 20 ideas que más preguntas resuelven</span></span></button>
-    <button class="row official" data-act="prob"><span class="txt"><b>Las ${PROBABLES.length} más probables</b><span class="sub">Selección de preguntas nuevas con más papeletas · corrección en cada una</span></span><span class="pct">${pctSet(PROBABLES.map(id=>BYID[id]))}</span></button>
-  </div>
-  <h2>Por temas</h2>
-  <div class="list">${rowsT}</div>
-  <h2>Simulacros</h2>
-  <div class="list">
-    <button class="row" data-act="sim8"><span class="txt"><b>Simulacro tipo examen</b><span class="sub">8 preguntas nuevas con el reparto del modelo (3·1·2·1·1) · corrección al final</span></span></button>
-    <button class="row" data-act="sim20"><span class="txt"><b>Simulacro largo</b><span class="sub">20 preguntas nuevas de los 5 temas · corrección al final</span></span></button>
-    <button class="row" data-act="mixall"><span class="txt"><b>Todo mezclado</b><span class="sub">Las ${ALL.length} preguntas al azar · corrección en cada una</span></span></button>
+    <button class="row" data-act="mand"><span class="txt"><b>Los 20 mandamientos</b><span class="sub">Las 20 ideas clave + consejos para el V/F</span></span></button>
   </div>
   <h2>Repaso</h2>
   <div class="list">
     <button class="row" data-act="fail"><span class="txt"><b>Falladas</b><span class="sub">Preguntas cuya última respuesta fue incorrecta</span></span><span class="pct">${nf}</span></button>
     <button class="row" data-act="stats"><span class="txt"><b>Estadísticas</b><span class="sub">Qué temas llevas mejor y peor</span></span></button>
   </div>
-  <p class="sub small" style="margin-top:24px">El progreso se guarda en este navegador y dispositivo.</p>`;
+  <details class="archive">
+    <summary>Formato 5 opciones (por si acaso)</summary>
+    <div class="list" style="margin-top:10px">
+      <button class="row" data-act="examen"><span class="txt"><b>Examen final modelo · test</b><span class="sub">8 preguntas tal cual · solucionario oficial · +1 / −0,2</span></span><span class="pct">${pctSet(EXAMEN)}</span></button>
+      <button class="row" data-act="prob"><span class="txt"><b>Las ${PROBABLES.length} más probables</b><span class="sub">Corrección en cada una</span></span><span class="pct">${pctSet(PROBABLES.map(id=>BYID[id]))}</span></button>
+      ${rowsMC}
+      <button class="row" data-act="sim8"><span class="txt"><b>Simulacro tipo examen</b><span class="sub">8 preguntas con el reparto del modelo</span></span></button>
+      <button class="row" data-act="sim20"><span class="txt"><b>Simulacro largo</b><span class="sub">20 preguntas de los 5 temas</span></span></button>
+    </div>
+  </details>
+  <p class="sub small" style="margin-top:24px">El progreso se guarda en este navegador y dispositivo. Los simulacros puntúan +1 / −0,2 / en blanco 0, como el modelo; si os confirman otra penalización para el V/F, dímelo.</p>`;
   app.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
-    const a=b.dataset.act;
+    const a=b.dataset.act,t=b.dataset.t;
+    if(a=="vfsimtop")startQuiz({title:"Simulacro importantes",qs:vfSimTop(),mode:"exam",gen:vfSimTop});
+    if(a=="vfsim")startQuiz({title:"Simulacro V/F",qs:vfSim(),mode:"exam",gen:vfSim});
+    if(a=="vfall")startQuiz({title:"Todas las V/F",qs:shuffle(VF_ALL),mode:"inst"});
+    if(a=="vftema")startQuiz({title:"V/F · Tema "+t,qs:shuffle(VF_ALL.filter(q=>q.t==t)),mode:"inst"});
     if(a=="repaso")startQuiz({title:"Repaso V/F",qs:REPASO,mode:"inst"});
-    if(a=="examen")startQuiz({title:"Examen modelo",qs:EXAMEN,mode:"exam"});
-    if(a=="tema"){const t=b.dataset.t;startQuiz({title:"Tema "+t,qs:shuffle(NUEVAS.filter(q=>q.t==t)),mode:"inst"})}
-    if(a=="sim8")startQuiz({title:"Simulacro",qs:sim8(),mode:"exam"});
-    if(a=="sim20")startQuiz({title:"Simulacro largo",qs:shuffle(sim20()),mode:"exam"});
-    if(a=="mixall")startQuiz({title:"Todo mezclado",qs:shuffle(ALL),mode:"inst"});
+    if(a=="examen")startQuiz({title:"Examen modelo",qs:EXAMEN,mode:"exam",gen:()=>EXAMEN});
+    if(a=="tema")startQuiz({title:"Tema "+t,qs:shuffle(NUEVAS.filter(q=>q.t==t)),mode:"inst"});
+    if(a=="sim8")startQuiz({title:"Simulacro",qs:sim8(),mode:"exam",gen:sim8});
+    if(a=="sim20")startQuiz({title:"Simulacro largo",qs:shuffle(sim20()),mode:"exam",gen:()=>shuffle(sim20())});
     if(a=="mand")mandView();
     if(a=="prob")startQuiz({title:"Más probables",qs:shuffle(PROBABLES.map(id=>BYID[id])),mode:"inst"});
     if(a=="fail")failView();
@@ -336,6 +436,9 @@ function pctSet(set){let n=0,ok=0;set.forEach(q=>{const r=S.q[q.id];if(r){n+=r.n
 function pick(t,k){return shuffle(NUEVAS.filter(q=>q.t==t)).slice(0,k)}
 function sim8(){return [...pick(1,3),...pick(2,1),...pick(3,2),...pick(4,1),...pick(5,1)]}
 function sim20(){return [...pick(1,4),...pick(2,4),...pick(3,4),...pick(4,4),...pick(5,4)]}
+function vfPick(pool,t,k){return shuffle(pool.filter(q=>q.t==t)).slice(0,k)}
+function vfSim(){return shuffle([1,2,3,4,5].flatMap(t=>vfPick(VF_ALL,t,2)))}
+function vfSimTop(){const pool=VF_TOP.map(id=>BYID[id]);return shuffle([1,2,3,4,5].flatMap(t=>vfPick(pool,t,2)))}
 
 // ---------- QUIZ ----------
 // mode "inst": corrección inmediata · mode "exam": corrección al final con +1/−0,2
@@ -347,12 +450,12 @@ function renderQ(){
   const q=Q.qs[Q.i],T=TEMAS[q.t],n=Q.qs.length;
   setHeader(Q.title,true);
   const answered=Q.ans[Q.i]!==undefined;
-  const srcTag=q.src=="repaso"?"Repaso oficial":q.src=="examen"?"Examen modelo":"Nueva";
+  const srcTag=q.src=="repaso"?"Repaso oficial":q.src=="examen"?"Examen modelo":q.vf?"Nueva V/F":"Nueva";
   app.innerHTML=`
   <div class="bar"><i style="width:${100*Q.i/n}%"></i></div>
   <div class="meta"><span class="sub" style="font-variant-numeric:tabular-nums">Pregunta ${Q.i+1} de ${n}</span>
     <span style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag" style="color:${T.c}">T${q.t} · ${T.el}</span><span class="tag" style="color:var(--muted)">${srcTag}</span></span></div>
-  <p class="q">${q.vf?esc(q.id.slice(1))+". ":""}${esc(q.q)}</p>
+  <p class="q">${q.src=="repaso"?esc(q.id.slice(1))+". ":""}${esc(q.q)}</p>
   <div class="opts" role="group" aria-label="Opciones">${q.o.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${q.vf?(k?"F":"V"):L[k]+")"}</span><span>${esc(o)}</span></button>`).join("")}</div>
   <div id="fb"></div>
   <div class="actions" id="acts"></div>`;
@@ -404,7 +507,7 @@ function finishInst(){
   <div class="actions"><button class="btn" id="again">Repetir</button>${wrong.length?'<button class="btn ghost" id="redo">Solo las falladas</button>':""}</div>
   <h2>Revisión de falladas</h2><div class="list">${wrong.length?wrong.map(([q,k])=>revCard(q,k)).join(""):'<p class="empty">Todo correcto.</p>'}</div>`;
   const cfg={title:Q.title,mode:Q.mode};
-  document.getElementById("again").onclick=()=>startQuiz({...cfg,qs:Q.qs[0].src=="nueva"?shuffle(Q.qs):Q.qs});
+  document.getElementById("again").onclick=()=>startQuiz({...cfg,qs:Q.qs[0].src=="repaso"?Q.qs:shuffle(Q.qs)});
   const r=document.getElementById("redo");if(r)r.onclick=()=>startQuiz({...cfg,title:"Falladas",qs:wrong.map(x=>x[0])});
 }
 function finishExam(){
@@ -416,11 +519,8 @@ function finishExam(){
   app.innerHTML=`<div class="hero"><div class="big">${nota.toFixed(1).replace(".",",")}</div><div class="sub">Nota sobre 10 · ${ok} bien (+${ok}), ${bad} mal (−${(0.2*bad).toFixed(1).replace(".",",")}), ${bl} en blanco · ${pts.toFixed(1).replace(".",",")} / ${n} puntos</div></div>
   <div class="actions"><button class="btn" id="again">${Q.qs[0].src=="examen"?"Repetir":"Otro simulacro"}</button></div>
   <h2>Corrección completa</h2><div class="list">${Q.qs.map((q,i)=>revCard(q,Q.ans[i])).join("")}</div>`;
-  const title=Q.title;
-  document.getElementById("again").onclick=()=>{
-    if(Q.qs[0].src=="examen")startQuiz({title,qs:EXAMEN,mode:"exam"});
-    else startQuiz({title,qs:title=="Simulacro"?sim8():shuffle(sim20()),mode:"exam"});
-  };
+  const title=Q.title,gen=Q.gen;
+  document.getElementById("again").onclick=()=>startQuiz({title,qs:gen?gen():Q.qs,mode:"exam",gen});
 }
 function revCard(q,k){const T=TEMAS[q.t];return `<div class="rev"><span class="tag" style="color:${T.c}">T${q.t} · ${T.el}</span><p class="q">${esc(q.q)}</p>${expBlock(q,k)}</div>`}
 
@@ -429,8 +529,17 @@ function mandView(){
   setHeader("Los 20 mandamientos",true);
   app.innerHTML=`<p class="sub" style="margin-top:16px">Con estas 20 ideas se responde la mayoría del material oficial. El color indica el tema.</p>
   <div class="list">${MANDAMIENTOS.map((m,i)=>{const T=TEMAS[m[0]];return `<div class="stat" style="border-left:4px solid ${T.c}"><div class="top"><b>${i+1}. ${esc(m[1])}</b><span class="tag" style="color:${T.c};flex:none">T${m[0]}</span></div><p style="margin:6px 0 0">${esc(m[2])}</p></div>`}).join("")}</div>
-  <div class="actions"><button class="btn" id="goProb">Practicar las más probables</button></div>`;
-  document.getElementById("goProb").onclick=()=>startQuiz({title:"Más probables",qs:shuffle(PROBABLES.map(id=>BYID[id])),mode:"inst"});
+  <h2>Cómo atacar el verdadero / falso</h2>
+  <div class="stat"><ol class="tips">
+    <li><b>Busca la palabra cambiada.</b> Casi todas las falsas son una frase real del temario con una sola pieza cambiada: física↔química, PFD↔P&ID, ADR↔APQ, sales↔gases, Dalton↔Raoult, ligero↔pesado, exotérmica↔endotérmica.</li>
+    <li><b>Desconfía de las relaciones invertidas.</b> «El PID es más genérico que el PFD», «el CSTR necesita menos volumen», «más reflujo, equipos más pequeños».</li>
+    <li><b>Comprueba la cifra.</b> 5º de la UE (no 8º), más de 5.000 años (no 200), 1,2-1,5·rmin, UF 1-10 bar, OI 50-80 bar, Γ < 0,1.</li>
+    <li><b>Ojo con el proceso intercambiado.</b> Romper cadenas es craqueo, no reformado; quitar azufre es hidrotratamiento; la gasolina sale del topping, no del vacío.</li>
+    <li><b>«Siempre», «solo», «elimina completamente»</b> suelen ser falsas: la turbulencia reduce la polarización pero no la elimina; la limpieza no siempre recupera el flujo.</li>
+    <li><b>No dejes ninguna en blanco (si la penalización es −0,2).</b> En V/F aciertas a ciegas el 50 %: de media sumas 0,5 − 0,5·0,2 = +0,4 por pregunta. Solo compensaría dejarla en blanco si cada fallo restara 1 punto (en ese caso adivinar suma 0 de media).</li>
+  </ol></div>
+  <div class="actions"><button class="btn" id="goProb">Simulacro · las más importantes</button></div>`;
+  document.getElementById("goProb").onclick=()=>startQuiz({title:"Simulacro importantes",qs:vfSimTop(),mode:"exam",gen:vfSimTop});
 }
 
 // ---------- FALLADAS ----------
