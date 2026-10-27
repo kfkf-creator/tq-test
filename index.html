@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TQ Test">
+<meta name="theme-color" content="#eef2f3">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>TQ Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: una columna estrecha tipo libreta de laboratorio; cada tema lleva el color de un ensayo a la llama */
+:root{
+  --bg:#eef2f3; --surface:#ffffff; --fg:#14232b; --muted:#5b6b73; --line:#d5dee2;
+  --accent:#0b6e79; --accent-ink:#ffffff;
+  --ok:#1d7a45; --ok-bg:#e3f4ea; --bad:#b3261e; --bad-bg:#fbe7e5; --blank:#8a6d10;
+  --t1:#d4a10a; --t2:#2f9e5b; --t3:#c2362f; --t4:#7a4fc9; --t5:#c23a78;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f181c; --surface:#172429; --fg:#e4ecee; --muted:#93a4ab; --line:#2a3a40;
+  --accent:#4cc3cf; --accent-ink:#06262a;
+  --ok:#5fd08e; --ok-bg:#163527; --bad:#ff8a80; --bad-bg:#3a1c1a; --blank:#e3c25a;
+  --t1:#f0c43a; --t2:#5fd08e; --t3:#f07a72; --t4:#b49af0; --t5:#f07ab0;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f181c; --surface:#172429; --fg:#e4ecee; --muted:#93a4ab; --line:#2a3a40;
+  --accent:#4cc3cf; --accent-ink:#06262a;
+  --ok:#5fd08e; --ok-bg:#163527; --bad:#ff8a80; --bad-bg:#3a1c1a; --blank:#e3c25a;
+  --t1:#f0c43a; --t2:#5fd08e; --t3:#f07a72; --t4:#b49af0; --t5:#f07ab0;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:12px;border-bottom:1px solid var(--line)}
+header h1{font-family:var(--display);font-weight:800;font-size:1.25rem;margin:0;letter-spacing:-.01em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:6px 12px;font:inherit;font-weight:500;cursor:pointer}
+.sub{color:var(--muted);font-size:.85rem}
+h2{font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;color:var(--fg);cursor:pointer}
+.row:focus-visible,.opt:focus-visible,.btn:focus-visible,.back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row .txt{flex:1;min-width:0}
+.row b{display:block;font-weight:600}
+.badge{width:40px;height:40px;flex:none;border-radius:10px;display:grid;place-items:center;font-family:var(--mono);font-size:.8rem;font-weight:500;border:2px solid currentColor}
+.badge sub{font-size:.6rem}
+.pct{font-family:var(--mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.official{border-left:4px solid var(--accent)}
+.hero{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center}
+.hero .big{font-family:var(--display);font-weight:800;font-size:2.2rem;line-height:1;font-variant-numeric:tabular-nums}
+/* quiz */
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:.75rem;padding:2px 8px;border-radius:99px;border:1px solid currentColor}
+.q{font-size:1.06rem;font-weight:600;margin:14px 0 14px;text-wrap:pretty}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font:inherit;color:var(--fg);cursor:pointer}
+.opt .l{font-family:var(--mono);font-weight:500;flex:none;width:1.4em;color:var(--muted)}
+.opt.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.ok .l{color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.bad .l{color:var(--bad)}
+.opt[disabled]{cursor:default}
+.exp{margin-top:14px;border-radius:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--line)}
+.exp .verdict{font-family:var(--display);font-weight:800;font-size:1.05rem;margin-bottom:4px}
+.exp.good .verdict{color:var(--ok)} .exp.wrong .verdict{color:var(--bad)} .exp.blank .verdict{color:var(--blank)}
+.exp p{margin:6px 0 0}
+.actions{display:flex;gap:8px;margin-top:16px}
+.btn{flex:1;border:0;border-radius:12px;padding:13px;font:inherit;font-weight:600;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn[disabled]{opacity:.45;cursor:default}
+/* stats */
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.meter{height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+.rev{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.rev .q{font-size:.95rem;margin:4px 0 6px}
+.small{font-size:.85rem}
+.confirm{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <button class="back" id="backBtn" hidden aria-label="Volver al inicio">← Inicio</button>
+    <h1 id="hTitle">Tecnologia Química · Test</h1>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+const TEMAS={
+ 1:{n:"Introducción a la industria química",el:"Na",c:"var(--t1)"},
+ 2:{n:"Destilación",el:"Cu",c:"var(--t2)"},
+ 3:{n:"Petróleo y petroquímica",el:"Li",c:"var(--t3)"},
+ 4:{n:"Cinética y reactores",el:"K",c:"var(--t4)"},
+ 5:{n:"Tecnología de membranas",el:"Sr",c:"var(--t5)"}
+};
+const VF=["Verdadero","Falso"];
+// ---------- BLOQUE OFICIAL 1: Preguntas de repaso V/F (tal cual) ----------
+const REPASO=[
+["r1",1,"La industria química básica transforma productos intermedios en productos finales de consumo.",1,"FALSO. Eso lo hace la química transformadora (para el consumo final). La química básica parte de materias primas y obtiene productos básicos/intermedios para otras industrias."],
+["r2",1,"La industria química se divide en 3 tipos: básica, transformadora y de la salud.",0,"VERDADERO. Es la clasificación del tema 1 (y de la CNAE): básica (35 %), transformadora para el consumo final (33 %) y para la salud (32 %)."],
+["r3",1,"La industria química incluye sólo procesos químicos a gran escala.",1,"FALSO. La definición habla de producción a gran escala, pero el sector abarca también laboratorio, planta piloto y procesos discontinuos de pequeña escala (p. ej. farmacéutica, química fina)."],
+["r4",1,"En la creación de un nuevo producto químico se consideran 3 etapes diferenciadas: la etapa de laboratorio, la planta piloto y la producción a gran escala.",0,"VERDADERO. Laboratorio → planta piloto (comprobar eficiencia y rentabilidad) → gran escala (cadena de producción continua), con patentes de producto y de proceso."],
+["r5",1,"En cuanto al volumen de negocio de la industria química, los Estado Unidos de América ocupan el segundo lugar del mundo y Alemania ocupa el primero.",1,"FALSO. El líder mundial en ventas químicas es China (CEFIC). Alemania tiene la primera empresa (BASF), pero no es el primer país."],
+["r6",1,"En el proceso de diseño o rehabilitación de una industria química se realizan PFD (Diagrama de Flujo) y PID (Diagrama de tuberías e instrumentación). El PID es más genérico que el PFD.",1,"FALSO. Es al revés: el PFD es el genérico (operaciones principales y equipos más importantes, útil para formación); el P&ID es el detallado (todas las corrientes, equipos, control e instrumentación)."],
+["r7",1,"Los primeros procesos químicos aparecieron hace unos 200 años.",1,"FALSO. Los orígenes tienen más de 5.000 años (cerveza, vino, cerámica). Hace unos 200 años (s. XIX) lo que hubo fue el gran crecimiento y diversificación en Europa."],
+["r8",1,"Industrias que hagan aditivos alimentarios o fertilizantes pertenecen al sector químico.",0,"VERDADERO. Ambos productos son resultado de transformar materias primas mediante procesos químicos; forman parte del sector químico."],
+["r9",1,"España es el octavo país dentro de la UE en industria química.",1,"FALSO. España es el 5º país de la UE en producción química."],
+["r10",1,"La destilación por rectificación es una operación básica química.",1,"FALSO. La rectificación es una operación básica FÍSICA (cambia composición por diferencia de volatilidades, sin reacción). Químicas son cloración, oxidación, hidrólisis, nitración..."],
+["r11",1,"La pirita tiene como uso principal la producción de ácido sulfúrico.",0,"VERDADERO. Litosfera: pirita → ácido sulfúrico; roca caliza → cemento; cuarzo/sílice → vidrio."],
+["r12",1,"A partir de algas la industria química produce cosméticos.",0,"VERDADERO. Biosfera, reino vegetal: algas marinas → fertilizantes, agar, cosmética."],
+["r13",3,"La estabilización del crudo se puede hacer antes o después del transporte.",1,"FALSO. Desalinización y estabilización son el pretratamiento (upstream) y se hacen ANTES del transporte a la refinería."],
+["r14",3,"En la destilación al vacío se obtiene principalmente gasolina.",1,"FALSO. La gasolina (ligera) sale del topping (destilación atmosférica). El vacío (35-130 mmHg, 400 ºC) trata el residuo y da gasoil, fueloil, lubricantes, asfaltos y ceras."],
+["r15",3,"Un crudo parafínico dará principalmente fracciones de fuelóleo y asfalto.",1,"FALSO. Un crudo parafínico es rico en cadenas lineales ligeras y medias; el fuelóleo y el asfalto provienen sobre todo de crudos pesados (nafténicos/aromáticos, asfálticos)."],
+["r16",3,"El catalizador del FCC es la zeolita y fluidiza dos veces.",0,"VERDADERO. FCC: catalizador ácido de zeolita (sílice 85 % + alúmina 15 %) en doble lecho fluidizado: reactor y regenerador."],
+["r17",3,"El reformado sirve para romper hidrocarburos de cadenas largas (pesados) y obtener de más ligeros.",1,"FALSO. Eso es el CRAQUEO. El reformado transforma alcanos y cicloalcanos de la nafta en ramificados y aromáticos para subir el índice de octano."],
+["r18",3,"El hidrotratamiento extrae agua de los hidrocarburos.",1,"FALSO. El hidrotratamiento es una hidrogenación catalítica para eliminar AZUFRE (S → H2S, luego proceso Claus → S elemental)."],
+["r19",3,"El gasóleo C es el que se utiliza para calefacción.",0,"VERDADERO. Gasóleo A y B: carburantes de motores; gasóleo C: calefacción (y combustible marítimo junto al fuel oil)."],
+["r20",3,"El principal uso del etileno es la fabricación de etanol, utilizado como desinfectante.",1,"FALSO. El etileno se usa principalmente para plásticos (polietileno). El etanol desinfectante es un derivado minoritario."]
+].map(r=>({id:r[0],t:r[1],q:r[2],o:VF,a:r[3],e:r[4],src:"repaso",vf:true}));
+
+// ---------- BLOQUE OFICIAL 2: Examen modelo, parte test (tal cual) ----------
+const EXAMEN=[
+{id:"x1",t:1,q:"¿Cuál de las siguientes afirmaciones es cierta en lo que respecta a la industria química?",o:["En el siglo XIX, la industria química experimentó un gran crecimiento y diversificación en Europa.","La green chemistry trabaja para conseguir la optimización económica de los procesos.","Madrid es la comunidad autónoma con mayor industria química en España.","El proteccionismo arancelario ayudó al desarrollo de la industria química.","España es el tercer país europeo en lo que se refiere a la industria química."],a:0,e:"(a) es literal del tema 1: s. XIX, gran crecimiento y diversificación en Europa. (b) La green chemistry es la preocupación por el medio ambiente; la optimización económica es otro eje distinto. (c) Es Cataluña (casi la mitad de la producción). (d) El proteccionismo RETRASÓ la industria española. (e) España es la 5ª de la UE."},
+{id:"x2",t:1,q:"Identifica la respuesta incorrecta con respecto a los procesos químicos:",o:["En la industria farmacéutica, por lo general, los procesos son discontinuos.","La cristalización es una operación básica química.","Existe un gran número y variedad de procesos químicos.","La normativa ADR regula el transporte de materiales peligrosos por carretera.","El almacenamiento de productos químicos en Cataluña está regulado por la APQ."],a:1,e:"La cristalización es una operación básica FÍSICA (como filtración, evaporación, rectificación, absorción, liofilización). Químicas: cloración, oxidación, hidrólisis, nitración. El resto son ciertas: farmacéutica = batch (excepción), ADR = carretera, APQ = almacenamiento en Cataluña."},
+{id:"x3",t:1,q:"Señala la afirmación correcta, entre las siguientes, en lo que se refiere a materias primas de la industria química:",o:["La industria química inorgánica utiliza principalmente el petróleo y el gas natural como materias primas.","Sólo se pueden utilizar materias primas de los animales si los sacrificamos.","La sílice se utiliza en la producción de fertilizantes.","El agua dulce no puede utilizarse como fluido térmico en la industria química.","Uno de los usos del nitrógeno del aire es la producción de amoníaco."],a:4,e:"N2 del aire (separado por proceso criogénico) → producción de NH3. (a) Petróleo y gas son base de la ORGÁNICA; la inorgánica usa minerales. (b) Leche, lana, excrementos y sangre se obtienen sin sacrificio. (c) Sílice → vidrio. (d) El agua es fluido térmico (vapor, refrigeración)."},
+{id:"x4",t:2,q:"Identifica la frase correcta respecto a destilación:",o:["Cuando la volatilidad relativa de una mezcla binaria sea menor que 1, será fácil separar ambos compuestos.","En una destilación flash, la alimentación está en equilibrio con el destilado.","En un azeótropo la composición del líquido que hierve y del vapor formado no son iguales.","Una alimentación con un valor q negativo implica que tenemos un vapor saturado.","El punto XE, YE es aquél donde se encuentran las dos rectas de operación, la línea q y la curva de equilibrio en situación de reflujo mínimo."],a:4,e:"A reflujo mínimo las dos rectas de operación y la línea q se cortan SOBRE la curva de equilibrio: ese es (xE, yE), con rmin = (xD − yE)/(yE − xE). (a) Separable si α > 1. (b) En el flash el vapor (destilado) está en equilibrio con el residuo, no con la alimentación. (c) En el azeótropo son iguales. (d) q < 0 es vapor recalentado; vapor saturado es q = 0."},
+{id:"x5",t:3,q:"¿Qué afirmación es falsa en referencia a la industria del petróleo y petroquímica?",o:["Arabia Saudí no es el primer país con más reservas de petróleo en el mundo.","La principal materia prima para producir nylon es el etileno.","La petroquímica es una industria química transformadora.","Los gases licuados del petróleo (GLP) pueden utilizarse como combustible doméstico.","El crudo puede transportarse por barco o por oleoductos hasta llegar a la refinería."],a:1,e:"El nylon (fibras sintéticas) deriva del BENCENO, no del etileno (etileno → plásticos, etanol...). (a) Cierta: Venezuela es la 1ª en reservas (Arabia Saudí 2ª). (c) Cierta. (d) Cierta: butano, propano. (e) Cierta."},
+{id:"x6",t:3,q:"Identifica la afirmación incorrecta en cuanto a los procesos que ocurren en la refinería:",o:["La desalinización del crudo forma parte del pretratamiento del mismo antes de entrar en la refinería.","El reformado mejora el número de octano de la gasolina mediante 3 reactores en serie.","El proceso de estabilización se realiza antes del transporte y se eliminan compuestos salinos principalmente.","Con la destilación al vacío se obtienen aceites lubricantes entre otros productos.","El hidrocraqueo evita la coquificación del catalizador y disminuye el porcentaje de azufre."],a:2,e:"La estabilización sí se hace antes del transporte, pero elimina los GASES disueltos más volátiles (doble columna a 3 y 15 atm, 140 ºC → C1-C4, gasolinas ligeras, crudo estabilizado). Las sales se eliminan en la DESALINIZACIÓN."},
+{id:"x7",t:4,q:"¿Cuál de las siguientes afirmaciones es cierta en cuanto a reactores?",o:["El orden de una reacción no puede ser fraccionario.","La conversión tiene unidades de mol/m3.","Un reactor PFR trabaja en condiciones fuera del estado estacionario.","Para un reactor BR, no se calcula el tiempo de residencia","En estado estacionario, el término correspondiente a la acumulación será superior a cero."],a:3,e:"El BR no tiene entradas ni salidas: no hay caudal Q0, así que no se define tiempo espacial ni de residencia (se habla de tiempo de reacción). (a) El orden puede ser entero, negativo o fraccionario. (b) La conversión es adimensional (0-1). (c) El PFR es estacionario (varía con la posición, no con el tiempo). (e) En estacionario dN/dt = 0."},
+{id:"x8",t:5,q:"¿Cuál de las siguientes frases es incorrecta en cuanto a membranas?",o:["La presión osmótica puede calcularse mediante expresiones empíricas.","Las membranas pueden clasificarse según su naturaleza, su estructura y según el transporte a través de ellas.","Si existe polarización, el fenómeno de difusión es un factor importante que afecta al flujo.","Un ejemplo de uso de la ultrafiltración es la recuperación de las proteínas del suero generado en la producción de queso.","El aumento de la presión es una de las soluciones definitivas en caso de ensuciamiento."],a:4,e:"Con ensuciamiento, subir la presión NO aumenta el flujo: solo engrosa la capa de gel, que además puede consolidarse y dar ensuciamiento permanente. Lo óptimo es operar entre P2 y P3. El resto es cierto: π empírica (π = a·T·Cs), 3 criterios de clasificación, difusión contraria al arrastre en la polarización, UF del suero del queso."}
+].map(q=>({...q,src:"examen"}));
+
+// ---------- BANCO NUEVO (5 opciones, estilo examen) ----------
+const NUEVAS=[
+// TEMA 1
+[1,"Señala la afirmación correcta sobre la economía de escala en la industria química:",["Aumenta los costes de inversión en la misma proporción que la producción.","Reduce los costes de producción sin que los costes de inversión y fabricación crezcan en la misma proporción.","Solo se aplica en la industria farmacéutica.","Implica plantas más pequeñas y con menos control automático.","Fue el motor del sector antes de la Revolución Industrial."],1,"Definición literal del tema 1: abarata productos sin que inversión y fabricación aumenten en la misma proporción. Se dio desde 1950 con plantas de hasta 500.000 t/año (fertilizantes y petróleo) y control automático."],
+[1,"Identifica la afirmación incorrecta sobre los diagramas de proceso:",["El PFD representa las operaciones principales con las corrientes y equipos más importantes.","El P&ID incluye todas las corrientes, equipos, control e instrumentación.","El PFD se usa para tareas informativas y de formación de nuevos trabajadores.","El P&ID lo utilizan técnicos de proceso e instrumentación.","El PFD es más detallado que el P&ID."],4,"El PFD es el esquema general; el P&ID es el detallado. Regla: PFD = Principal, P&ID = Pormenorizado."],
+[1,"Señala la afirmación correcta sobre las operaciones básicas (unitarias):",["La nitración es una operación básica física.","Filtración, sedimentación, fluidización y liofilización son operaciones básicas físicas.","La hidrólisis es una operación básica física.","Las operaciones básicas cambian completamente según el proceso en que se apliquen.","La rectificación es una operación básica química."],1,"Físicas: filtración, sedimentación, fluidización, evaporación, rectificación, absorción, cristalización, liofilización. Químicas: cloración, oxidación, hidrólisis, nitración. Una operación básica es esencialmente la misma sea cual sea el proceso."],
+[1,"Según la CNAE, señala la afirmación correcta sobre la industria química en España:",["Química básica 35 %, transformadora para el consumo final 33 % y para la salud 32 %.","La química para la salud pertenece a la categoría 20 de la CNAE.","La química transformadora supone más del 50 % del sector.","Madrid concentra casi la mitad de la producción estatal.","La mayoría de las empresas químicas tienen más de 250 trabajadores."],0,"Reparto 35/33/32. Básica y transformadora = categoría 20; salud = categoría 21. Cataluña hace casi la mitad de la producción y la mayoría son pymes y micropymes."],
+[1,"Identifica la afirmación incorrecta sobre almacenamiento y transporte de productos químicos:",["El GHS es un sistema armonizado global de clasificación y etiquetado.","REACH/CLP es el sistema europeo de clasificación.","En Cataluña la APQ especifica cómo debe ser un almacén seguro.","El ADR regula el transporte por carretera de mercancías peligrosas y en España se aplica con el RD 97/2014.","El ADR regula el almacenamiento de productos químicos en Cataluña."],4,"Almacenamiento → GHS y REACH/CLP (clasificación y etiquetado) y APQ en Cataluña. Transporte por carretera → ADR (RD 97/2014)."],
+[1,"Señala la relación correcta entre mineral y uso principal:",["Roca caliza → cemento.","Pirita → vidrio.","Sílice → ácido sulfúrico.","Roca caliza → fertilizantes.","Cuarzo → ácido nítrico."],0,"Litosfera inorgánica: pirita → ácido sulfúrico; roca caliza → cemento; cuarzo/sílice → vidrio."],
+[1,"Identifica la afirmación incorrecta sobre el aire como materia prima:",["El N2 se usa para producir NH3.","Los gases nobles se usan en tubos luminosos y aparatos electrónicos.","Los componentes del aire se separan por un proceso criogénico.","El ozono se obtiene por descargas eléctricas sobre el aire.","El O2 se usa principalmente como gas inerte."],4,"El O2 se usa en reacciones de combustión y oxidación (y aerostación). Los usos como gas inerte corresponden al N2 y a los gases nobles (Ar)."],
+[1,"Señala la afirmación correcta sobre la biosfera como materia prima:",["De la lana se obtiene lanolina para cosmética y farmacia.","La caseína de la leche se usa para fabricar antibióticos.","La pectina se usa principalmente para fabricar papel.","Todos los productos animales requieren sacrificar el animal.","La colofonia se obtiene de la caña de azúcar."],0,"Lana → industria textil y lanolina. Caseína → fibras textiles (la lactosa es la de antibióticos). Pectina → gelificante de mermeladas. Colofonia → árboles (barnices). Leche, lana, excrementos y sangre no requieren sacrificio."],
+[1,"Señala la afirmación correcta sobre la historia de la industria química:",["La Revolución Industrial (s. XVIII) supuso un cambio de escala de los procesos.","Los primeros procesos químicos tienen unos 200 años.","El uso del carbón y el coque empezó en Francia en el s. XIX.","Los alquimistas trabajaron sobre todo en el s. XIX.","El crecimiento espectacular de la petroquímica empezó en 1850."],0,"Cronología: >5.000 años (cerveza, vino, cerámica); metalurgia 1500 a.C.; alquimistas 100 a.C.-1400 d.C.; carbón/coque en Inglaterra s. XVII; Revolución Industrial s. XVIII (cambio de escala); s. XIX gran crecimiento en Europa; desde 1950 boom petroquímico."],
+[1,"Identifica la afirmación incorrecta sobre el tipo de operación de los procesos:",["Los procesos continuos son los más comunes en una planta química.","En el laboratorio, originalmente, los procesos son discontinuos.","Un proceso semicontinuo es continuo pero incluye operaciones discontinuas, como limpiar filtros.","La farmacéutica es una excepción en la que se mantiene el proceso batch.","Un proceso semibatch funciona sin ninguna operación discontinua."],4,"Semibatch/semicontinuo = proceso continuo con alguna operación discontinua (limpieza periódica de filtros, por ejemplo)."],
+[1,"Señala la afirmación correcta sobre la industria química en España:",["Su expansión se retrasó por aislamiento, falta de inversión extranjera y proteccionismo arancelario.","Es el primer país de la UE en producción química.","Cataluña aporta alrededor del 10 % de la producción estatal.","La mayoría de empresas son grandes, con más de 250 trabajadores.","Las empresas químicas generan menos de 100.000 empleos."],0,"Retraso por aislamiento, falta de inversión extranjera y proteccionismo. Hoy es 5ª de la UE, Cataluña hace casi la mitad, mayoría de pymes y más de un millón de empleos directos, indirectos o inducidos."],
+[1,"Identifica la afirmación incorrecta sobre el agua como materia prima:",["El agua dulce es medio de muchas reacciones químicas.","El agua es fuente de H2 y O2.","Se usa como fluido térmico (vapor y agua de refrigeración).","El agua de mar se desaliniza y se aprovechan sus sales.","El agua dulce tiene un bajo poder disolvente, por eso apenas se usa como medio."],4,"El agua tiene un GRAN poder disolvente y dispersante; es justamente uno de sus usos industriales."],
+[1,"Señala la afirmación correcta sobre las mayores empresas químicas del mundo (ventas 2024):",["BASF (Alemania) es la primera.","Sinopec (China) es la primera.","Dow es una empresa alemana.","SABIC es estadounidense.","Linde es china."],0,"Top: 1 BASF (Alemania), 2 Sinopec (China), 3 Dow (EE. UU.), 4 PetroChina, 5 ExxonMobil, 6 SABIC (Arabia Saudí)... Linde e INEOS: Reino Unido."],
+// TEMA 2
+[2,"Señala la afirmación correcta sobre la volatilidad relativa αAB:",["Si αAB = 1 la mezcla es fácil de separar por destilación.","Si αAB > 1 el vapor es más rico en A y la mezcla se puede separar por destilación.","Si αAB > 1 la mezcla forma necesariamente un azeótropo.","Si α es constante, y = α·x / [1 − (α−1)·x].","αAB es el cociente entre las presiones totales de A y B."],1,"α = (yA/xA)/(yB/xB) = PA0/PB0 (ideal). α > 1 → separable; α = 1 → no separable (azeótropo). Curva: y = α·x / [1 + (α−1)·x] (signo +)."],
+[2,"Señala la afirmación correcta sobre las leyes de Raoult y Dalton:",["Raoult: pi = xi·Pi0.","Dalton: pi = xi·P.","Raoult se aplica a disoluciones reales sin corrección.","xA = (P − PA0)/(PA0 − PB0).","yA = xA·P/PA0."],0,"Raoult (líquido ideal): pi = xi·Pi0. Dalton (gas ideal): pi = yi·P. Combinando: xA = (P − PB0)/(PA0 − PB0) e yA = xA·PA0/P."],
+[2,"Identifica la relación incorrecta entre estado de la alimentación y valor de q:",["Líquido frío (subenfriado): q > 1.","Líquido a temperatura de ebullición: q = 1.","Mezcla líquido-vapor: 0 < q < 1.","Vapor saturado: q = 0.","Vapor recalentado: q > 1."],4,"Vapor recalentado → q < 0. Regla: q es la fracción de alimentación que baja como líquido; más frío que ebullición → más de 1; más caliente que vapor saturado → negativo."],
+[2,"Señala la afirmación correcta sobre la línea q:",["Pasa por (xF, xF) y tiene pendiente q/(q−1).","Pasa por (xD, xD) y tiene pendiente q/(q−1).","Tiene pendiente (q−1)/q.","Con q = 1 es horizontal.","Con q = 0 es vertical."],0,"y = q/(q−1)·x − xF/(q−1). Con q = 1 es VERTICAL (x = xF); con q = 0 es HORIZONTAL (y = xF)."],
+[2,"Señala la afirmación correcta sobre las condiciones límite de una columna:",["A reflujo total (r = ∞) se obtiene el número mínimo de platos, con D = 0.","Con reflujo mínimo se obtiene el número mínimo de platos.","A reflujo total la recta de rectificación tiene ordenada en el origen máxima.","Aumentar r reduce el tamaño de la columna, la caldera y el condensador.","El reflujo óptimo económico suele estar entre 2 y 3 veces rmin."],0,"r = ∞ → pendiente 1, ordenada 0, la recta coincide con la diagonal → Nmín (Fenske), pero D = 0. Con rmin → platos infinitos. Óptimo: 1,2-1,5·rmin. Más r → mayores caudales y equipos."],
+[2,"Identifica la afirmación incorrecta sobre la relación de reflujo:",["r = L/D.","Al aumentar r aumentan los caudales y el coste de caldera y condensador.","Al disminuir r se necesitan más etapas.","El r óptimo suele estar entre 1,2·rmin y 1,5·rmin.","Con r = rmin la separación se consigue con el mínimo número de etapas."],4,"Con rmin se necesitan infinitas etapas (pinch en (xE, yE)). El mínimo de etapas es a reflujo total."],
+[2,"Señala la afirmación correcta sobre la destilación flash:",["Se calienta la alimentación a alta T y P y se expande por una válvula; los volátiles se vaporizan preferentemente.","Se usa sobre todo para mezclas binarias.","El vapor está en equilibrio con la alimentación.","La recta de operación tiene pendiente +R/D.","Funciona en estado no estacionario."],0,"Flash = una etapa de equilibrio: el vapor (D, yD) está en equilibrio con el residuo (R, xR). Recta de operación con pendiente −R/D = −(1−f)/f, f = V/F. Se usa más en multicomponentes (crudo)."],
+[2,"Señala la afirmación correcta sobre la destilación diferencial (simple):",["En la versión discontinua el estado es no estacionario: composiciones y temperatura de ebullición cambian con el tiempo.","Es la destilación más utilizada en la industria.","Utiliza varias etapas de equilibrio.","En la versión continua las composiciones cambian con el tiempo.","El residuo se va enriqueciendo en el componente volátil."],0,"Es la más fácil (una etapa) y muy poco utilizada. Discontinua: no estacionaria. Continua: estacionaria. El residuo se empobrece en volátil."],
+[2,"Identifica la hipótesis incorrecta del método de McCabe-Thiele:",["Pérdidas de calor despreciables.","Calor de mezcla despreciable.","Calores latentes molares de los dos componentes iguales.","Caudal molar constante dentro de cada sección.","Los caudales de líquido son iguales en enriquecimiento y agotamiento sea cual sea la alimentación."],4,"El caudal es constante DENTRO de cada sección, pero cambia al pasar la alimentación según q (p. ej. con q = 1: L' = L + F, V' = V)."],
+[2,"Señala la afirmación correcta sobre etapas y eficacia:",["Si hay 6 etapas teóricas, equivalen a 5 platos teóricos + calderín/condensador.","Platos reales = platos teóricos × eficiencia.","Eficiencia = platos reales / platos teóricos.","McCabe-Thiele supone que en cada plato no se alcanza el equilibrio.","La ecuación de Fenske da las etapas con reflujo mínimo."],0,"Calderín (y condensador) cuentan como 1 etapa teórica. η = N teóricos/N reales → N reales = N teóricos/η (redondear hacia arriba). McCabe-Thiele supone equilibrio en cada plato; Fenske = reflujo total."],
+[2,"Señala la afirmación correcta sobre las ecuaciones de diseño:",["Fenske calcula el número mínimo de etapas (reflujo total).","Fenske-Underwood calcula el número mínimo de etapas.","Underwood (multicomponente) es válido aunque las volatilidades varíen mucho.","En Fenske-Underwood se usa xF en lugar de xE si la alimentación es vapor saturado.","Fenske depende de la relación de reflujo."],0,"Fenske → Nmín = log[(xD/(1−xD))·((1−xR)/xR)]/log α. Fenske-Underwood → rmin; si la alimentación es LÍQUIDO saturado (q = 1), xE = xF. Underwood exige α constantes."],
+[2,"Identifica la afirmación incorrecta sobre mezclas multicomponente:",["El clave ligero es el componente más ligero que aparece en el producto de cola.","El clave pesado es el más pesado que aparece en el destilado.","Las volatilidades se refieren al clave pesado, que tiene α = 1.","Hoy el diseño se hace con simuladores como HYSYS (Aspen).","El parámetro θ de Underwood está entre las α del componente más volátil y del menos volátil de toda la mezcla."],4,"θ está entre las volatilidades del clave LIGERO y del clave PESADO, no entre los extremos de la mezcla."],
+[2,"Señala la afirmación correcta sobre los azeótropos:",["Líquido y vapor tienen la misma composición, y por destilaciones sucesivas no se puede pasar de un lóbulo a otro.","En un azeótropo αAB > 1.","Etanol-agua forma un azeótropo a x = 0,5.","Un azeótropo se separa fácilmente en una columna de rectificación.","En el azeótropo el vapor siempre es más rico en el componente volátil."],0,"En el azeótropo α = 1 y x = y. Cada lóbulo se comporta como un diagrama normal. Etanol-agua a 1 atm: x = 0,89 (95,6 % en masa)."],
+[2,"Señala la afirmación correcta sobre los platos de una columna:",["Hay platos de campanas (el más utilizado), de válvulas y perforados.","Los platos perforados son los más utilizados.","Los agujeros de los platos perforados son de 50-100 mm.","Solo existen platos de válvulas.","Los platos de campanas no se usan en la industria."],0,"Tres tipos: campanas (el más usado), válvulas y perforados (agujeros de 5-10 mm)."],
+[2,"Identifica la afirmación incorrecta sobre las rectas de operación:",["Rectificación: y = [r/(r+1)]·x + xD/(r+1).","La recta de rectificación corta la diagonal en xD.","La recta de agotamiento corta la diagonal en xR.","Las dos rectas se cortan sobre la línea q.","La recta de rectificación corta la diagonal en xF."],4,"Rectificación → (xD, xD); agotamiento → (xR, xR); línea q → (xF, xF). Las tres concurren en un punto."],
+// TEMA 3
+[3,"Señala la afirmación correcta sobre la composición del petróleo:",["Sus principales hidrocarburos son parafínicos (CnH2n+2), nafténicos (CnH2n) y aromáticos.","Los nafténicos tienen fórmula CnH2n+2.","Tiene origen inorgánico.","Solo contiene compuestos líquidos.","Sus fracciones se separan según su densidad."],0,"Origen: descomposición anaerobia de materia animal y vegetal. Contiene sólidos, líquidos y gases. Las fracciones se separan según su VOLATILIDAD (punto de ebullición)."],
+[3,"Identifica la afirmación incorrecta sobre el petróleo a nivel mundial:",["El 90-95 % de los productos orgánicos derivan del petróleo y del gas natural.","Solo un 10 % del petróleo extraído se destina a síntesis orgánica.","Venezuela es el primer país en reservas probadas.","EE. UU. es el primer productor de refinados.","La mayor parte del petróleo extraído se usa en síntesis orgánica."],4,"La mayoría del petróleo se usa como fuente de ENERGÍA; solo ~10 % va a síntesis orgánica. Reservas: Venezuela, Arabia Saudí, Irán. Refinados: EE. UU., China, India."],
+[3,"Señala la afirmación correcta sobre el petróleo en España:",["El primer yacimiento se descubrió en 1964 en Ayoluengo (Burgos).","La producción propia cubre un 30 % del consumo.","El primer yacimiento se descubrió en el golfo de Cádiz.","España no necesita importar crudo.","El crudo importado viene principalmente de Noruega."],0,"Producción autóctona < 0,03 % del consumo (2025). Se importa sobre todo de Nigeria, México, EE. UU. y Libia."],
+[3,"Señala la afirmación correcta sobre las etapas del refino:",["Desalinización y estabilización son el pretratamiento (upstream), antes del transporte.","El topping se hace antes del transporte.","El craqueo es una etapa upstream.","La purificación se hace en el yacimiento.","La estabilización elimina las sales."],0,"Upstream: desalinización + estabilización → transporte (barco/oleoducto). Downstream (refinería): fraccionamiento/topping → craqueo → mejora de propiedades → purificación."],
+[3,"Señala la afirmación correcta sobre la desalinización del crudo:",["Se lava con agua y aditivos, se almacena a 120-150 ºC a presión y se separan las fases por decantación.","Se hace mediante destilación al vacío.","Elimina los gases disueltos.","Se hace por ósmosis inversa a 70 bar.","Se realiza en la refinería después del topping."],0,"Desalinización: lavado + calentamiento a presión + decantación (crudo desalado / agua con sales). Los gases los elimina la estabilización."],
+[3,"Identifica la afirmación incorrecta sobre el topping (destilación atmosférica):",["Se precalienta el crudo en un horno a 350-370 ºC.","Se usan tiempos de residencia cortos para evitar el craqueo y la formación de coque.","El crudo entra a presión atmosférica por la parte baja de la torre.","Da gases, GLP, gasolinas ligeras, queroseno, gasoil y residuo.","Su producto principal son asfaltos y lubricantes."],4,"Asfaltos, lubricantes y ceras salen de la destilación al VACÍO (35-130 mmHg, 400 ºC), que trata el residuo atmosférico."],
+[3,"Señala la afirmación correcta sobre la destilación al vacío:",["Trabaja a 35-130 mmHg y unos 400 ºC y da gasoil, fueloil, lubricantes, asfaltos y ceras.","Trabaja a 1 atm y 350 ºC.","Su producto principal es la gasolina.","Se hace antes del transporte.","Da principalmente GLP."],0,"Topping: 1 atm, 350 ºC (ligeros). Vacío: baja presión para destilar pesados sin craquearlos."],
+[3,"Señala la afirmación correcta sobre el craqueo catalítico (FCC):",["Opera a ~450 ºC con zeolita ácida (85 % sílice, 15 % alúmina) y da rendimientos de gasolina > 50 %.","Su catalizador es de platino.","Se inició en 1990.","Se aplica principalmente a las naftas.","Utiliza un único lecho fijo."],0,"FCC (desde 1938): rompe parafinas largas de la fracción de gasoil; da olefinas como subproducto; doble lecho fluidizado reactor-regenerador."],
+[3,"Identifica la afirmación incorrecta sobre el hidrocraqueo:",["Añade hidrógeno al craqueo catalítico.","Trabaja a 140-200 atm y ~400 ºC.","Evita la coquificación del catalizador y reduce el azufre.","Tiene gran flexibilidad de alimentación.","Trabaja a presión atmosférica y sin hidrógeno."],4,"Hidrocraqueo = craqueo + H2 a ALTA presión; catalizador de paladio o zeolitas. El H2 sube la relación H/C (menos coque) y quita S."],
+[3,"Señala la afirmación correcta sobre el reformado catalítico:",["Convierte alcanos y cicloalcanos en ramificados y aromáticos, sube el octanaje y da BTX; con Pt se llama platforming.","Rompe cadenas largas para obtener ligeros.","Sus reacciones son exotérmicas.","Mejora el índice de cetano de la gasolina.","El azufre y el nitrógeno activan el catalizador."],0,"Reformado = aromatización. Reacciones endotérmicas a 490-530 ºC y 10-25 bar. S y N son VENENOS del Pt (por eso se desulfura antes). Cetano es para gasoil."],
+[3,"Identifica la afirmación incorrecta sobre las etapas del reformado:",["Primero se desulfura la nafta porque S y N envenenan el platino.","El reformado ocurre a 490-530 ºC y 10-25 bar.","Al final se estabiliza y fracciona: gases, benceno y gasolina.","El proceso más común es en lecho fijo.","El reformado es un gran consumidor neto de H2."],4,"El reformado PRODUCE H2 (aromatizar libera hidrógeno), y ese H2 se usa en el hidrotratamiento."],
+[3,"Señala la afirmación correcta sobre el hidrotratamiento:",["Hidrogenación catalítica que pasa el S a H2S, que luego el proceso Claus convierte en S elemental.","Extrae agua de los hidrocarburos.","El proceso Claus convierte azufre en H2S.","Es una purificación física.","El H2 que usa viene del craqueo térmico."],0,"Purificación química. Claus: 3H2S + 3/2O2 → 3S + 3H2O, con aire y catalizador de bauxita. El H2 viene del reformado. Purificación física: desasfaltado, extracción de aromáticos, desparafinado."],
+[3,"Señala la afirmación correcta sobre los índices de calidad de los combustibles:",["El índice de octano mide la resistencia de la gasolina a detonar prematuramente al comprimirse; para el gasoil se usa el índice de cetano.","El índice de octano se usa para el gasoil.","El MTBE reduce el octanaje.","El índice de cetano mide la resistencia a la autoignición.","Las moléculas lineales detonan más tarde que las ramificadas."],0,"Ramificados y aromáticos son más compactos y detonan menos → más octano. MTBE es aditivo que sube el octano. Cetano: facilidad de autoignición (sin retraso en el encendido)."],
+[3,"Señala la afirmación correcta sobre los productos de la refinería:",["Gasóleo A y B para motores, gasóleo C para calefacción, GLP para uso doméstico.","El gasóleo A es para calefacción.","El GLP es materia prima del asfalto.","El fuel oil se usa como carburante de turismos.","La refinería no suministra materias primas a la petroquímica."],0,"La refinería da carburantes, combustibles (energía, doméstico, calefacción, marítimo) y materias primas petroquímicas (metano, etileno, propileno, BTX, nafta no energética), además de lubricantes, asfalto, ceras, coque y azufre."],
+[3,"Señala la afirmación correcta sobre la petroquímica:",["Es una industria química transformadora; su primer producto fue el isopropanol (1920) y llegó a Europa en los años 50.","Es una industria química básica.","Su primer producto fue el etileno en 1950.","Solo usa gas natural.","Llegó a Europa a principios del s. XX."],0,"Usa fracciones de refinería o gas natural como materia prima y desplazó materias primas tradicionales por sintéticas."],
+[3,"Identifica la afirmación incorrecta sobre las etapas del desarrollo petroquímico:",["1ª generación: olefinas, aromáticos y metano, de alta reactividad.","Las olefinas se obtienen por cracking de fracciones pesadas.","Los aromáticos se obtienen por reformado de naftas.","2ª generación: se introducen O, N y S para obtener intermedios.","El metano se obtiene principalmente del reformado de naftas."],4,"Metano: del gas natural y de las refinerías. 3ª etapa: productos de consumo (fibras, plásticos, detergentes, pinturas...)."],
+[3,"Señala la relación correcta materia prima → derivado:",["Xileno → paraxileno → ácido tereftálico → PET.","Tolueno → PET.","Butadieno → nylon.","Metano → polibutadieno.","Isopreno → TNT."],0,"Metano → amoníaco, metanol. Butadieno → polibutadieno (gomas). Isopreno → poliisopreno (caucho). Tolueno → TNT, poliuretano. Xileno → PET. Benceno → nylon."],
+// TEMA 4
+[4,"Señala la afirmación correcta sobre el orden de reacción:",["Puede ser entero, negativo o fraccionario y en general se determina experimentalmente.","Coincide siempre con los coeficientes estequiométricos.","En orden cero la velocidad depende de la concentración.","Siempre es un número entero positivo.","Determina el valor de k."],0,"El orden es independiente de la estequiometría y está ligado al mecanismo. Orden 0: (−rA) = k (no depende de C). Orden 1 es el más habitual."],
+[4,"Señala la afirmación correcta sobre la constante cinética k:",["Sigue Arrhenius, k = A·exp(−Ea/RT): cuanto mayor Ea, más lenta la reacción.","Depende del tiempo de reacción.","Depende de las concentraciones.","Puede ser negativa en reacciones de desaparición.","Cuanto mayor Ea, más rápida la reacción."],0,"k es siempre positiva, independiente de t y de C, y depende sobre todo de T. A = factor de frecuencia (eficacia de los choques)."],
+[4,"Identifica la afirmación incorrecta sobre la conversión XA:",["Es adimensional y va de 0 a 1.","En un batch: XA = (NA0 − NA)/NA0.","En continuo: XA = (FA0 − FA)/FA0.","A volumen constante: XA = (CA0 − CA)/CA0.","Se expresa en mol/m3."],4,"La conversión no tiene unidades. Lo que tiene mol/m3 es la concentración."],
+[4,"En la reacción 3 Mg + N2 → Mg3N2, con 1 mol de Mg y 1 mol de N2, señala la correcta:",["El limitante es el Mg, porque 1/3 = 0,33 < 1/1.","El limitante es el N2, porque hay menos átomos.","No hay limitante porque hay los mismos moles.","El limitante es el N2 porque su coeficiente es 1.","El limitante es el producto."],0,"Se comparan moles/coeficiente: Mg 1/3 = 0,33; N2 1/1 = 1. El menor es el limitante."],
+[4,"Señala la afirmación correcta sobre el reactor batch (BR):",["No estacionario, sin entradas ni salidas, mezcla perfecta; diseño: −(−rA)·V = dNA/dt.","Trabaja en estado estacionario.","Se define en él un tiempo espacial τ = V/Q0.","Sus propiedades varían con la posición.","Tiene caudal de entrada Fj0 ≠ 0."],0,"En el BR Fj0 = Fjs = 0 y todo es acumulación. Versión con conversión: t = CA0·∫dXA/(−rA)."],
+[4,"Identifica la afirmación incorrecta sobre el CSTR:",["Trabaja en estado estacionario.","Las propiedades de la salida son iguales a las del interior.","Diseño: FA0 − (−rA)·V = FAS.","Se definen tiempo espacial y tiempo de residencia.","La concentración dentro del reactor es igual a la de entrada."],4,"Por la mezcla perfecta e instantánea, dentro del CSTR la concentración es la de SALIDA, no la de entrada. Por eso trabaja a la velocidad más baja."],
+[4,"Señala la afirmación correcta sobre el PFR:",["Es estacionario; las propiedades son iguales en cada sección pero varían a lo largo del eje.","Trabaja fuera del estado estacionario.","Sus condiciones son homogéneas en todo el volumen.","No tiene entradas ni salidas.","Su ecuación de diseño es dFA/dV = (−rA)."],0,"PFR: −dFA/dV = (−rA). Varía con la POSICIÓN, no con el tiempo."],
+[4,"Señala la afirmación correcta sobre el tiempo espacial:",["τ = V/Q0 y coincide con el tiempo de residencia si la densidad es constante.","τ = Q0/V.","En un BR τ es el tiempo de reacción.","El tiempo de residencia siempre es mayor que τ.","τ solo se define en el BR."],0,"τ = tiempo en llenar el volumen V con el caudal de entrada. Solo en reactores continuos."],
+[4,"Señala la afirmación correcta sobre la comparación de reactores continuos:",["A igual conversión y alimentación (orden > 0), el PFR necesita menos volumen que el CSTR.","El CSTR siempre necesita menos volumen.","Muchos PFR en serie se aproximan a un CSTR.","En la gráfica 1/(−rA) frente a XA, el volumen del CSTR es el área bajo la curva.","Ambos necesitan el mismo volumen."],0,"Gráfica 1/(−rA) vs XA: PFR = área bajo la curva (∫); CSTR = rectángulo XA × 1/(−rA) de salida, más grande."],
+[4,"Identifica la afirmación incorrecta sobre combinaciones de reactores:",["En paralelo se usan, por ejemplo, para aumentar la producción.","En paralelo, el óptimo es con tiempos espaciales iguales.","PFR en serie en las mismas condiciones equivalen a un PFR de volumen suma.","n CSTR en serie con n elevado se aproximan a un PFR.","n CSTR en serie con n elevado se aproximan a un único CSTR grande."],4,"Muchos CSTR en serie → comportamiento de PFR (la escalera se acerca al área bajo la curva)."],
+[4,"Señala la afirmación correcta sobre las reacciones de pseudoprimer orden:",["Si un reactivo está en gran exceso (p. ej. agua disolvente), su concentración apenas cambia y (−rA) ≈ kap·CA.","Ocurren cuando todos los reactivos están en proporción estequiométrica.","Son de orden cero respecto al reactivo limitante.","Solo ocurren con catálisis enzimática.","kap no depende de la concentración del reactivo en exceso."],0,"kap = k·CH2O (incluye la concentración del reactivo en exceso, que se considera constante)."],
+[4,"Señala la afirmación correcta sobre el balance de energía en reactores:",["Si Q = 0 el reactor es adiabático; si (−ΔHr) > 0 la reacción es exotérmica.","Si (−ΔHr) > 0 la reacción es endotérmica.","En un CSTR la T varía con la posición.","En un PFR la T varía con el tiempo.","Q positivo indica refrigeración."],0,"Q > 0 aporte (vapor, resistencia); Q < 0 refrigeración; Q = U·A·ΔT. BR: T varía con t; CSTR: Ts = T reactor; PFR: T varía con la posición."],
+[4,"Señala la afirmación correcta sobre las aplicaciones de los reactores:",["Agitados: química fina, fangos activados (CSTR), fermentaciones; tubulares/relleno: cracking, reformado y gran producción en continuo.","El cracking catalítico se hace en CSTR.","Las depuradoras de fangos activados usan PFR de lecho fijo.","Los agitados se usan en procesos muy exotérmicos de gran producción.","Las biotorres son reactores batch."],0,"Agitados: en general procesos endotérmicos o de baja energía. Tubulares y de relleno (lecho fijo/fluidizado): gran producción, exo o endotérmicos, en continuo. Biotorres: lecho fijo."],
+[4,"Identifica la afirmación incorrecta sobre cinética:",["En estado estacionario la acumulación es cero.","En un CSTR las concentraciones no varían con el tiempo.","En un BR el término de acumulación no es cero.","Un sistema en equilibrio químico tiene velocidad de reacción nula.","En reacciones irreversibles la velocidad se anula al llegar al equilibrio aunque queden reactivos."],4,"En las irreversibles la velocidad llega a 0 cuando se ACABAN los reactivos (no hay equilibrio que alcanzar)."],
+[4,"Señala la afirmación correcta:",["El tiempo de vida media es el necesario para que C = C0/2; los catalizadores aumentan la velocidad (enzimas: Michaelis-Menten).","El tiempo de vida media es el que tarda en consumirse todo el reactivo.","Los catalizadores se consumen en la reacción.","Michaelis-Menten describe reactores PFR.","Un catalizador reduce la velocidad para mayor selectividad."],0,"A + cat → D + cat: el catalizador no se consume. Enzimática: (−rA) = k2·Cenz·CA/(KM + CA)."],
+[4,"Para aA + bB → cC + dD, señala la relación correcta entre velocidades:",["(−rA)/a = (−rB)/b = (+rC)/c = (+rD)/d","a·(−rA) = b·(−rB) = c·(+rC) = d·(+rD)","(−rA) = (−rB) = (+rC) = (+rD) siempre","(−rA)/b = (−rB)/a","(+rC) = (−rA)·a/c"],0,"Cada velocidad dividida por su coeficiente estequiométrico es igual. Ej.: 2A → 3C + D: rC = 1,5·(−rA)."],
+// TEMA 5
+[5,"Señala la afirmación correcta sobre la definición de membrana:",["Fase intermedia permeoselectiva que separa dos fases y se opone al transporte según su selectividad, gracias a una fuerza impulsora.","Una barrera totalmente impermeable.","Solo puede ser de origen biológico.","El transporte ocurre sin fuerza impulsora.","Transporta todos los componentes a la misma velocidad."],0,"La clave es la permeoselectividad: un componente pasa más rápido que otro por las propiedades físicas o químicas entre membrana y componentes."],
+[5,"Identifica la afirmación incorrecta sobre la clasificación de membranas:",["Por naturaleza: biológicas y sintéticas.","Sintéticas inorgánicas: metálicas, de vidrio y cerámicas.","Estructura microscópica: densas o porosas, simétricas o asimétricas.","Estructura macroscópica: laminares, tubulares y en espiral.","Las de intercambio iónico son porosas de flujo viscoso."],4,"Las de intercambio iónico (catiónicas/aniónicas) son DENSAS. Porosas: flujo de gas (Knudsen, viscoso) o de líquido (difusión)."],
+[5,"Señala las definiciones correctas de los parámetros de proceso:",["r = QP/QF; rs = 1 − CPs/CFs; FC = CRs/CFs.","rs = CPs/CFs.","FC = CFs/CRs.","r = QR/QF.","rs = 1 − CRs/CFs."],0,"Recuperación (permeado/alimentación), factor de rechazo (lo que NO pasa al permeado) y factor de concentración (rechazo/alimentación)."],
+[5,"Señala la expresión correcta del flujo de disolvente:",["jd = Ad·(ΔPh − Δπ) = QP·CPd/Sm","jd = Ad·(ΔPh + Δπ)","jd = Bs·(CFs − CPs)","jd = Ad·Δπ","jd = Ad·ΔPh, sin influencia de la presión osmótica"],0,"La presión osmótica se OPONE al paso de disolvente. ΔPh = PF − PP; Δπ = πF − πP."],
+[5,"Señala la afirmación correcta sobre el flujo de soluto:",["js = Bs·(CFs − CPs): depende de la diferencia de concentraciones, no de la presión.","js aumenta al aumentar la presión.","js = Ad·ΔP.","js no depende de la concentración de la alimentación.","js = Bs·(CFs + CPs)."],0,"Por eso al subir ΔP sube jd pero no js, y el permeado sale más puro (rs aumenta)."],
+[5,"Sobre la ecuación de Van't Hoff, señala el número correcto de iones (n):",["NaCl: 2; MgCl2: 3; Na2CO3: 3.","NaCl: 1; MgCl2: 2; Na2CO3: 2.","NaCl: 2; MgCl2: 2; Na2CO3: 3.","NaCl: 2; MgCl2: 3; Na2CO3: 2.","NaCl: 3; MgCl2: 3; Na2CO3: 3."],0,"n = kmol de iones por kmol: MX → 2; MX2 → 3; M2X → 3. También hay expresiones empíricas: salinas π = a·T·Cs; proteínas π = aC + bC² + cC³."],
+[5,"Señala la afirmación correcta sobre el diseño en mezcla perfecta sin polarización:",["rs = Ad·ΔP / (Ad·ΔP + Bs): al aumentar ΔP aumenta el factor de rechazo.","rs = Bs / (Ad·ΔP + Bs).","Al aumentar ΔP disminuye el factor de rechazo.","rs no depende de la presión.","rs = Ad·ΔP / Bs."],0,"Se obtiene con CPd ≈ 1 m3/m3 y densidad del disolvente puro en el permeado."],
+[5,"Señala los balances de materia correctos en un módulo de membranas:",["QF = QP + QR y QF·CFs = QP·CPs + QR·CRs (densidad constante).","QF = QP − QR.","QF·CFs = QP·CPs − QR·CRs.","QP = QF + QR.","QF·CFs = QR·CRs (el permeado no lleva soluto)."],0,"El permeado lleva algo de soluto (CPs ≠ 0). Con densidad ≈ constante el balance másico pasa a volumétrico."],
+[5,"Señala la afirmación correcta sobre la polarización por concentración:",["Es la acumulación de soluto en la pared de la membrana (lado rechazo) por el arrastre del flujo de disolvente, compensada por difusión; si Γ < 0,1 se desprecia.","Ocurre en el lado del permeado.","No depende del flujo de disolvente.","Se elimina totalmente aumentando la presión.","Si Γ > 0,1 se puede despreciar."],0,"Relación: jd = k·ln(Cw/CRs). Cw es la concentración en la pared, mayor que la del seno del rechazo."],
+[5,"Señala la afirmación correcta sobre cómo reducir la polarización:",["Aumentando la turbulencia con deflectores que reducen la sección de paso; reduce el fenómeno pero no lo elimina.","Aumentando la presión hasta eliminarla.","Reduciendo la velocidad del fluido.","Aumentando la concentración de la alimentación.","Con deflectores se elimina completamente."],0,"Más velocidad → más turbulencia → mayor coeficiente k → menor Cw."],
+[5,"Señala la afirmación correcta sobre el coeficiente de transferencia k:",["Turbulento (Re > 2000): Sh = 0,023·Re^0,8·Sc^0,33 (Dittus-Boelter); laminar: Sh = 1,62·(Re·Sc·Dh/L)^0,33.","Laminar: Sh = 0,023·Re^0,8·Sc^0,33.","Sh = k·D/Dh.","Re = μ/(ρ·D).","Turbulento si Re < 2000."],0,"Sh = k·Dh/D; Re = ρ·u·Dh/μ; Sc = μ/(ρ·D). Laminar: Graetz-Leveque."],
+[5,"Identifica la afirmación incorrecta sobre el ensuciamiento:",["Se debe a la deposición de coloides y macromoléculas favorecida por la polarización.","La capa de gel es una barrera secundaria que aumenta la resistencia.","Conviene operar entre P2 y P3, con capa de gel fina.","A mayor concentración de soluto, menos flujo para la misma presión.","La limpieza periódica recupera siempre el flujo inicial."],4,"La limpieza (agua, álcali o ácido, detergentes) NO siempre recupera el flujo inicial. Ejemplo UF: agua pura > 14 m3/m2·d; con coloides cae en segundos a < 1,4."],
+[5,"Señala la afirmación correcta sobre la ultrafiltración (UF):",["Trabaja a 1-10 bar, retiene 0,01-0,1 µm (bacterias, virus, proteínas) y suele operar en flujo tangencial.","Trabaja a 50-80 bar.","Retiene sales disueltas como el NaCl.","Retiene igual moléculas lineales y no lineales de la misma masa.","Su fuerza impulsora es la diferencia de potencial eléctrico."],0,"La forma importa: las moléculas lineales pasan y las no lineales de la misma masa molecular quedan retenidas. Aplicaciones: agroalimentaria (suero del queso), farmacéutica, agua ultrapura, electrodeposición, emulsiones..."],
+[5,"Señala la afirmación correcta sobre la ósmosis inversa (OI):",["Desalación de agua de mar a 50-80 bar; agua salobre a partir de 500 mg/L (típica 1.000-10.000 mg/L); límite de boro 0,7 mg/L.","Trabaja a 1-10 bar.","Se considera salobre a partir de 50.000 mg/L.","No se usa para concentrar zumos.","El disolvente pasa del lado diluido al concentrado."],0,"En OI se aplica una presión mayor que la osmótica para que el disolvente pase del lado concentrado al diluido. Otras aplicaciones: zumos, vinos, agua ultrapura, reutilización."],
+[5,"Identifica la afirmación incorrecta sobre la separación de gases (SG):",["Separa un gas permeable de otro que no lo es.","Se usa para recuperar hidrógeno.","Se usa en la separación oxígeno-nitrógeno.","Se usa para purificar gas natural y eliminar VOC.","Su fuerza impulsora es una diferencia de potencial eléctrico."],4,"La fuerza impulsora de la SG es la diferencia de PRESIÓN entre alimentación y permeado. El potencial eléctrico es propio de la electrodiálisis."],
+[5,"Señala la afirmación correcta sobre la configuración de los módulos:",["Geometría laminar (planos), tubular (capilares o fibras huecas, según el tamaño del canal) y espiral (en tubos a presión).","Solo existen módulos tubulares.","Los capilares y las fibras huecas se diferencian por el material.","El módulo espiral no trabaja a presión.","La alimentación siempre es perpendicular a la membrana."],0,"Formas de operar: equicorriente, contracorriente, mezcla perfecta y flujo tangencial con permeado perpendicular."],
+[5,"Señala el planteamiento correcto del problema general de diseño:",["Conocidos Ad, Bs, QF y CFs, e impuestos QP y CPs, se determinan P, Sm, QR y CRs.","Conocidos P y Sm se determinan Ad y Bs.","Se impone CRs y se calcula CPs.","Ad y Bs son incógnitas del diseño.","Se conocen QR y CRs y se calcula QF."],0,"Ad y Bs son propiedades de la membrana (datos). Las ecuaciones salen de los balances global y de soluto."]
+].map((r,i)=>({id:"n"+(i+1),t:r[0],q:r[1],o:r[2],a:r[3],e:r[4],src:"nueva"}));
+
+const ALL=[...REPASO,...EXAMEN,...NUEVAS];
+// Selección prioritaria: conceptos que ya han salido en el material oficial o que lo rozan, con el peso por temas del examen modelo
+const PROBABLES=["n2","n3","n4","n5","n6","n9","n11","n14","n16","n18","n19","n26","n30","n32","n34","n37","n38","n40","n45","n46","n48","n50","n54","n63","n70","n73","n74"];
+const MANDAMIENTOS=[
+[1,"Física o química","Filtración, sedimentación, evaporación, rectificación, absorción, cristalización y liofilización son operaciones básicas FÍSICAS. Cloración, oxidación, hidrólisis y nitración son QUÍMICAS."],
+[1,"PFD general, P&ID detallado","El P&ID incluye todas las corrientes, el control y la instrumentación. El PFD solo lo principal y sirve para formación."],
+[1,"España, 5ª de la UE","Cataluña hace casi la mitad, mayoría de pymes, retraso por aislamiento y proteccionismo arancelario. Básica 35 %, transformadora 33 %, salud 32 %."],
+[1,"Historia","Orígenes hace más de 5.000 años; Revolución Industrial s. XVIII (cambio de escala); gran crecimiento en Europa en el s. XIX; petroquímica desde 1950."],
+[1,"Materias primas y normativa","Pirita → ácido sulfúrico, caliza → cemento, sílice → vidrio, N₂ → NH₃. El agua es medio de reacción y fluido térmico. ADR = transporte por carretera; APQ = almacenamiento en Cataluña."],
+[2,"α > 1 → separable","Con α = 1 hay azeótropo (x = y) y no se puede pasar de un lóbulo a otro."],
+[2,"Valores de q","Líquido frío > 1, líquido a ebullición = 1, mezcla L-V entre 0 y 1, vapor saturado = 0, vapor recalentado < 0. La línea q pasa por (xF, xF) con pendiente q/(q−1)."],
+[2,"Reflujo total y mínimo","Reflujo total (r = ∞) → número mínimo de platos (Fenske). Con reflujo mínimo, infinitos platos, y las rectas, la línea q y la curva de equilibrio se cortan en (xE, yE). r óptimo entre 1,2 y 1,5·rmin."],
+[2,"Flash","El vapor está en equilibrio con el RESIDUO, no con la alimentación. Pendiente de la recta: −R/D."],
+[3,"Upstream, antes del transporte","La desalinización quita SALES; la estabilización quita GASES."],
+[3,"Topping y vacío","El topping (1 atm) da los ligeros. El vacío da gasoil, fueloil, lubricantes, asfaltos y ceras, no gasolina."],
+[3,"Craqueo, hidrocraqueo, reformado","El craqueo rompe cadenas largas (FCC: zeolita, doble lecho fluidizado). El hidrocraqueo añade H₂: sin coque y con menos S. El reformado sube el octanaje: usa Pt, es endotérmico y produce BTX y H₂."],
+[3,"Hidrotratamiento","Quita azufre, no agua. El S pasa a H₂S y el proceso Claus lo convierte en S elemental."],
+[3,"Petroquímica transformadora","Etileno → plásticos; benceno → nylon; xileno → PET. Venezuela tiene más reservas. El gasóleo C es para calefacción."],
+[4,"Cinética","El orden puede ser fraccionario o negativo y se determina experimentalmente. La conversión es ADIMENSIONAL (0-1). Arrhenius: a mayor Ea, reacción más lenta."],
+[4,"Los tres reactores ideales","BR: no estacionario, sin entradas ni salidas, SIN tiempo de residencia. CSTR: estacionario, salida = interior. PFR: estacionario, varía con la posición. Estacionario → acumulación = 0."],
+[4,"PFR frente a CSTR","A igual conversión, el PFR necesita menos volumen. Muchos CSTR en serie se comportan como un PFR. En paralelo, lo óptimo es tener tiempos espaciales iguales."],
+[5,"Flujos en membranas","jd = Ad(ΔPh − Δπ) y js = Bs(CFs − CPs). La presión aumenta jd pero no js, así que más presión da más rechazo."],
+[5,"Polarización","Acumulación de soluto en la pared, compensada por difusión. Se desprecia si Γ < 0,1. La turbulencia (deflectores) la reduce, pero no la elimina."],
+[5,"Ensuciamiento y aplicaciones","Subir la presión solo engrosa la capa de gel, y la limpieza no siempre recupera el flujo. UF: 1-10 bar (proteínas, suero del queso). OI de agua de mar: 50-80 bar. La separación de gases funciona por diferencia de presión."]
+];
+const BYID=Object.fromEntries(ALL.map(q=>[q.id,q]));
+
+// ---------- estado persistente (solo en este dispositivo) ----------
+const KEY="tq-test-v1";
+let S={q:{},sims:[]};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function record(id,ok){const r=S.q[id]||{n:0,ok:0,last:null};r.n++;if(ok)r.ok++;r.last=ok?1:0;S.q[id]=r;save()}
+function failedIds(){return Object.keys(S.q).filter(id=>S.q[id].last===0&&BYID[id])}
+function temaStats(t){let n=0,ok=0,seen=0;const pool=ALL.filter(q=>q.t==t);pool.forEach(q=>{const r=S.q[q.id];if(r){n+=r.n;ok+=r.ok;seen++}});return{n,ok,seen,total:pool.length,pct:n?Math.round(100*ok/n):null}}
+
+// ---------- utilidades ----------
+const app=document.getElementById("app"),backBtn=document.getElementById("backBtn"),hTitle=document.getElementById("hTitle");
+const L="abcde";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function badge(t){const T=TEMAS[t];return `<span class="badge" style="color:${T.c}" aria-hidden="true">${T.el}<sub>${t}</sub></span>`}
+function setHeader(title,back){hTitle.textContent=title;backBtn.hidden=!back;window.scrollTo(0,0)}
+backBtn.onclick=home;
+
+// ---------- INICIO ----------
+function home(){
+  setHeader("Tecnologia Química · Test",false);
+  const tot=Object.values(S.q).reduce((a,r)=>a+r.n,0),ok=Object.values(S.q).reduce((a,r)=>a+r.ok,0);
+  const nf=failedIds().length;
+  const rowsT=Object.keys(TEMAS).map(t=>{const s=temaStats(t);const nn=NUEVAS.filter(q=>q.t==t).length;
+    return `<button class="row" data-act="tema" data-t="${t}">${badge(t)}<span class="txt"><b>Tema ${t}. ${TEMAS[t].n}</b><span class="sub">${nn} preguntas nuevas · 5 opciones</span></span><span class="pct">${s.pct==null?"–":s.pct+" %"}</span></button>`}).join("");
+  app.innerHTML=`
+  <div class="hero">
+    <div class="big">${tot?Math.round(100*ok/tot)+" %":"–"}</div>
+    <div class="sub">${tot?`Aciertos globales en ${tot} respuestas. ${nf} pregunta${nf==1?"":"s"} pendiente${nf==1?"":"s"} de repasar.`:"Aún no has respondido nada. Empieza por el material oficial."}</div>
+  </div>
+  <h2>Material oficial (tal cual)</h2>
+  <div class="list">
+    <button class="row official" data-act="repaso"><span class="txt"><b>Preguntas de repaso · V/F</b><span class="sub">20 preguntas · temas 1 y 3 · con solución oficial</span></span><span class="pct">${pctSet(REPASO)}</span></button>
+    <button class="row official" data-act="examen"><span class="txt"><b>Examen final modelo · test</b><span class="sub">8 preguntas · solucionario oficial · +1 / −0,2 / en blanco 0</span></span><span class="pct">${pctSet(EXAMEN)}</span></button>
+  </div>
+  <h2>Si vas justo de tiempo</h2>
+  <div class="list">
+    <button class="row official" data-act="mand"><span class="txt"><b>Los 20 mandamientos</b><span class="sub">Las 20 ideas que más preguntas resuelven</span></span></button>
+    <button class="row official" data-act="prob"><span class="txt"><b>Las ${PROBABLES.length} más probables</b><span class="sub">Selección de preguntas nuevas con más papeletas · corrección en cada una</span></span><span class="pct">${pctSet(PROBABLES.map(id=>BYID[id]))}</span></button>
+  </div>
+  <h2>Por temas</h2>
+  <div class="list">${rowsT}</div>
+  <h2>Simulacros</h2>
+  <div class="list">
+    <button class="row" data-act="sim8"><span class="txt"><b>Simulacro tipo examen</b><span class="sub">8 preguntas nuevas con el reparto del modelo (3·1·2·1·1) · corrección al final</span></span></button>
+    <button class="row" data-act="sim20"><span class="txt"><b>Simulacro largo</b><span class="sub">20 preguntas nuevas de los 5 temas · corrección al final</span></span></button>
+    <button class="row" data-act="mixall"><span class="txt"><b>Todo mezclado</b><span class="sub">Las ${ALL.length} preguntas al azar · corrección en cada una</span></span></button>
+  </div>
+  <h2>Repaso</h2>
+  <div class="list">
+    <button class="row" data-act="fail"><span class="txt"><b>Falladas</b><span class="sub">Preguntas cuya última respuesta fue incorrecta</span></span><span class="pct">${nf}</span></button>
+    <button class="row" data-act="stats"><span class="txt"><b>Estadísticas</b><span class="sub">Qué temas llevas mejor y peor</span></span></button>
+  </div>
+  <p class="sub small" style="margin-top:24px">El progreso se guarda en este navegador y dispositivo.</p>`;
+  app.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const a=b.dataset.act;
+    if(a=="repaso")startQuiz({title:"Repaso V/F",qs:REPASO,mode:"inst"});
+    if(a=="examen")startQuiz({title:"Examen modelo",qs:EXAMEN,mode:"exam"});
+    if(a=="tema"){const t=b.dataset.t;startQuiz({title:"Tema "+t,qs:shuffle(NUEVAS.filter(q=>q.t==t)),mode:"inst"})}
+    if(a=="sim8")startQuiz({title:"Simulacro",qs:sim8(),mode:"exam"});
+    if(a=="sim20")startQuiz({title:"Simulacro largo",qs:shuffle(sim20()),mode:"exam"});
+    if(a=="mixall")startQuiz({title:"Todo mezclado",qs:shuffle(ALL),mode:"inst"});
+    if(a=="mand")mandView();
+    if(a=="prob")startQuiz({title:"Más probables",qs:shuffle(PROBABLES.map(id=>BYID[id])),mode:"inst"});
+    if(a=="fail")failView();
+    if(a=="stats")statsView();
+  });
+}
+function pctSet(set){let n=0,ok=0;set.forEach(q=>{const r=S.q[q.id];if(r){n+=r.n;ok+=r.ok}});return n?Math.round(100*ok/n)+" %":"–"}
+function pick(t,k){return shuffle(NUEVAS.filter(q=>q.t==t)).slice(0,k)}
+function sim8(){return [...pick(1,3),...pick(2,1),...pick(3,2),...pick(4,1),...pick(5,1)]}
+function sim20(){return [...pick(1,4),...pick(2,4),...pick(3,4),...pick(4,4),...pick(5,4)]}
+
+// ---------- QUIZ ----------
+// mode "inst": corrección inmediata · mode "exam": corrección al final con +1/−0,2
+let Q=null;
+// Las nuevas barajan el orden de opciones en cada intento; las oficiales se mantienen tal cual
+function mixOpts(q){if(q.src!=="nueva")return q;const p=shuffle([0,1,2,3,4]);return {...q,o:p.map(k=>q.o[k]),a:p.indexOf(q.a)}}
+function startQuiz(cfg){Q={...cfg,qs:cfg.qs.map(mixOpts),i:0,ans:[]};renderQ()}
+function renderQ(){
+  const q=Q.qs[Q.i],T=TEMAS[q.t],n=Q.qs.length;
+  setHeader(Q.title,true);
+  const answered=Q.ans[Q.i]!==undefined;
+  const srcTag=q.src=="repaso"?"Repaso oficial":q.src=="examen"?"Examen modelo":"Nueva";
+  app.innerHTML=`
+  <div class="bar"><i style="width:${100*Q.i/n}%"></i></div>
+  <div class="meta"><span class="sub" style="font-variant-numeric:tabular-nums">Pregunta ${Q.i+1} de ${n}</span>
+    <span style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag" style="color:${T.c}">T${q.t} · ${T.el}</span><span class="tag" style="color:var(--muted)">${srcTag}</span></span></div>
+  <p class="q">${q.vf?esc(q.id.slice(1))+". ":""}${esc(q.q)}</p>
+  <div class="opts" role="group" aria-label="Opciones">${q.o.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${q.vf?(k?"F":"V"):L[k]+")"}</span><span>${esc(o)}</span></button>`).join("")}</div>
+  <div id="fb"></div>
+  <div class="actions" id="acts"></div>`;
+  const opts=[...app.querySelectorAll(".opt")];
+  const acts=document.getElementById("acts");
+  if(Q.mode=="inst"){
+    opts.forEach(b=>b.onclick=()=>answerInst(+b.dataset.k));
+    if(answered)showFeedback();
+  }else{
+    let sel=Q.ans[Q.i]??null;
+    const paint=()=>opts.forEach(b=>b.classList.toggle("sel",+b.dataset.k===sel));
+    paint();
+    opts.forEach(b=>b.onclick=()=>{sel=+b.dataset.k===sel?null:+b.dataset.k;Q.ans[Q.i]=sel;paint();drawActs()});
+    function drawActs(){
+      const last=Q.i==n-1;
+      acts.innerHTML=`${Q.i>0?'<button class="btn ghost" id="prev">Anterior</button>':""}<button class="btn" id="next">${last?"Corregir":(sel==null?"Dejar en blanco":"Siguiente")}</button>`;
+      const p=document.getElementById("prev"); if(p)p.onclick=()=>{Q.i--;renderQ()};
+      document.getElementById("next").onclick=()=>{if(Q.ans[Q.i]===undefined)Q.ans[Q.i]=null;if(last)finishExam();else{Q.i++;renderQ()}};
+    }
+    drawActs();
+  }
+}
+function answerInst(k){
+  if(Q.ans[Q.i]!==undefined)return;
+  const q=Q.qs[Q.i];Q.ans[Q.i]=k;record(q.id,k===q.a);showFeedback();
+}
+function expBlock(q,k){
+  const ok=k===q.a,blank=k==null;
+  const lab=x=>q.vf?q.o[x]:`(${L[x]})`;
+  let head=blank?"En blanco":ok?"Correcta":"Incorrecta";
+  let lines=`<p><b>Respuesta correcta: ${lab(q.a)}</b>${q.vf?"":" "+esc(q.o[q.a])}</p>`;
+  if(!ok&&!blank)lines=`<p>Has marcado ${lab(k)}${q.vf?"":": "+esc(q.o[k])}</p>`+lines;
+  return `<div class="exp ${blank?"blank":ok?"good":"wrong"}"><div class="verdict">${head}</div>${lines}<p>${esc(q.e)}</p></div>`;
+}
+function showFeedback(){
+  const q=Q.qs[Q.i],k=Q.ans[Q.i];
+  app.querySelectorAll(".opt").forEach(b=>{const j=+b.dataset.k;b.disabled=true;if(j===q.a)b.classList.add("ok");else if(j===k)b.classList.add("bad")});
+  document.getElementById("fb").innerHTML=expBlock(q,k);
+  const last=Q.i==Q.qs.length-1;
+  document.getElementById("acts").innerHTML=`<button class="btn" id="next">${last?"Ver resultado":"Siguiente"}</button>`;
+  document.getElementById("next").onclick=()=>{if(last)finishInst();else{Q.i++;renderQ()}};
+  document.getElementById("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function finishInst(){
+  const ok=Q.qs.filter((q,i)=>Q.ans[i]===q.a).length,n=Q.qs.length;
+  setHeader(Q.title,true);
+  const wrong=Q.qs.map((q,i)=>[q,Q.ans[i]]).filter(([q,k])=>k!==q.a);
+  app.innerHTML=`<div class="hero"><div class="big">${ok}/${n}</div><div class="sub">${Math.round(100*ok/n)} % de aciertos.${wrong.length?" Las falladas quedan en el bloque de repaso.":" Ninguna fallada."}</div></div>
+  <div class="actions"><button class="btn" id="again">Repetir</button>${wrong.length?'<button class="btn ghost" id="redo">Solo las falladas</button>':""}</div>
+  <h2>Revisión de falladas</h2><div class="list">${wrong.length?wrong.map(([q,k])=>revCard(q,k)).join(""):'<p class="empty">Todo correcto.</p>'}</div>`;
+  const cfg={title:Q.title,mode:Q.mode};
+  document.getElementById("again").onclick=()=>startQuiz({...cfg,qs:Q.qs[0].src=="nueva"?shuffle(Q.qs):Q.qs});
+  const r=document.getElementById("redo");if(r)r.onclick=()=>startQuiz({...cfg,title:"Falladas",qs:wrong.map(x=>x[0])});
+}
+function finishExam(){
+  let ok=0,bad=0,bl=0;
+  Q.qs.forEach((q,i)=>{const k=Q.ans[i];if(k==null){bl++}else{record(q.id,k===q.a);k===q.a?ok++:bad++}});
+  const n=Q.qs.length,pts=ok-0.2*bad,nota=Math.max(0,10*pts/n);
+  S.sims.push({d:Date.now(),title:Q.title,n,ok,bad,bl,nota:+nota.toFixed(2)});S.sims=S.sims.slice(-30);save();
+  setHeader(Q.title,true);
+  app.innerHTML=`<div class="hero"><div class="big">${nota.toFixed(1).replace(".",",")}</div><div class="sub">Nota sobre 10 · ${ok} bien (+${ok}), ${bad} mal (−${(0.2*bad).toFixed(1).replace(".",",")}), ${bl} en blanco · ${pts.toFixed(1).replace(".",",")} / ${n} puntos</div></div>
+  <div class="actions"><button class="btn" id="again">${Q.qs[0].src=="examen"?"Repetir":"Otro simulacro"}</button></div>
+  <h2>Corrección completa</h2><div class="list">${Q.qs.map((q,i)=>revCard(q,Q.ans[i])).join("")}</div>`;
+  const title=Q.title;
+  document.getElementById("again").onclick=()=>{
+    if(Q.qs[0].src=="examen")startQuiz({title,qs:EXAMEN,mode:"exam"});
+    else startQuiz({title,qs:title=="Simulacro"?sim8():shuffle(sim20()),mode:"exam"});
+  };
+}
+function revCard(q,k){const T=TEMAS[q.t];return `<div class="rev"><span class="tag" style="color:${T.c}">T${q.t} · ${T.el}</span><p class="q">${esc(q.q)}</p>${expBlock(q,k)}</div>`}
+
+// ---------- MANDAMIENTOS ----------
+function mandView(){
+  setHeader("Los 20 mandamientos",true);
+  app.innerHTML=`<p class="sub" style="margin-top:16px">Con estas 20 ideas se responde la mayoría del material oficial. El color indica el tema.</p>
+  <div class="list">${MANDAMIENTOS.map((m,i)=>{const T=TEMAS[m[0]];return `<div class="stat" style="border-left:4px solid ${T.c}"><div class="top"><b>${i+1}. ${esc(m[1])}</b><span class="tag" style="color:${T.c};flex:none">T${m[0]}</span></div><p style="margin:6px 0 0">${esc(m[2])}</p></div>`}).join("")}</div>
+  <div class="actions"><button class="btn" id="goProb">Practicar las más probables</button></div>`;
+  document.getElementById("goProb").onclick=()=>startQuiz({title:"Más probables",qs:shuffle(PROBABLES.map(id=>BYID[id])),mode:"inst"});
+}
+
+// ---------- FALLADAS ----------
+function failView(){
+  setHeader("Falladas",true);
+  const ids=failedIds();
+  if(!ids.length){app.innerHTML=`<p class="empty">No tienes preguntas falladas pendientes.<br>Cuando falles una, aparecerá aquí hasta que la aciertes.</p>`;return}
+  const qs=ids.map(id=>BYID[id]);
+  const byT={};qs.forEach(q=>(byT[q.t]=byT[q.t]||[]).push(q));
+  app.innerHTML=`<div class="hero"><div class="big">${qs.length}</div><div class="sub">Preguntas cuya última respuesta fue incorrecta. Al acertarlas desaparecen de aquí.</div></div>
+  <div class="actions"><button class="btn" id="go">Repasar todas</button></div>
+  <h2>Por tema</h2><div class="list">${Object.keys(byT).sort().map(t=>`<button class="row" data-t="${t}">${badge(t)}<span class="txt"><b>Tema ${t}</b><span class="sub">${TEMAS[t].n}</span></span><span class="pct">${byT[t].length}</span></button>`).join("")}</div>
+  <h2>Listado</h2><div class="list">${qs.map(q=>revCard(q,null).replace('class="exp blank"','class="exp good"').replace(">En blanco<",">Solución<")).join("")}</div>`;
+  document.getElementById("go").onclick=()=>startQuiz({title:"Falladas",qs:shuffle(qs),mode:"inst"});
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>startQuiz({title:"Falladas T"+b.dataset.t,qs:shuffle(byT[b.dataset.t]),mode:"inst"}));
+}
+
+// ---------- ESTADÍSTICAS ----------
+function statsView(){
+  setHeader("Estadísticas",true);
+  const rows=Object.keys(TEMAS).map(t=>({t,...temaStats(t)}));
+  const ranked=rows.filter(r=>r.pct!=null).sort((a,b)=>a.pct-b.pct);
+  const worst=ranked[0],best=ranked[ranked.length-1];
+  const sims=S.sims.slice().reverse().slice(0,8);
+  app.innerHTML=`
+  ${ranked.length>=2?`<div class="hero"><div class="sub">Mejor tema: <b style="color:${TEMAS[best.t].c}">T${best.t} ${TEMAS[best.t].n}</b> (${best.pct} %)<br>A reforzar: <b style="color:${TEMAS[worst.t].c}">T${worst.t} ${TEMAS[worst.t].n}</b> (${worst.pct} %)</div></div>`:""}
+  <h2>Aciertos por tema</h2>
+  <div class="list">${rows.map(r=>`<div class="stat"><div class="top"><span><b>T${r.t}</b> ${TEMAS[r.t].n}</span><span class="pct">${r.pct==null?"sin datos":r.pct+" %"}</span></div>
+    <div class="meter"><i style="width:${r.pct||0}%;background:${TEMAS[r.t].c}"></i></div>
+    <div class="sub small" style="margin-top:6px;font-variant-numeric:tabular-nums">${r.ok}/${r.n} respuestas correctas · ${r.seen}/${r.total} preguntas vistas</div></div>`).join("")}</div>
+  <h2>Bloques oficiales</h2>
+  <div class="list"><div class="stat"><div class="top"><span>Repaso V/F</span><span class="pct">${pctSet(REPASO)}</span></div></div>
+  <div class="stat"><div class="top"><span>Examen modelo</span><span class="pct">${pctSet(EXAMEN)}</span></div></div></div>
+  <h2>Últimos simulacros</h2>
+  <div class="list">${sims.length?sims.map(s=>`<div class="stat"><div class="top"><span>${esc(s.title)} · ${new Date(s.d).toLocaleDateString("es-ES",{day:"numeric",month:"short"})}</span><span class="pct" style="color:var(--fg)">${String(s.nota).replace(".",",")}</span></div><div class="sub small">${s.ok} bien · ${s.bad} mal · ${s.bl} en blanco</div></div>`).join(""):'<p class="empty">Aún no has hecho ningún simulacro.</p>'}</div>
+  <h2>Datos</h2>
+  <div id="resetBox"><button class="btn ghost" id="reset">Borrar todo el progreso</button></div>`;
+  document.getElementById("reset").onclick=()=>{
+    document.getElementById("resetBox").innerHTML=`<div class="confirm"><span>¿Seguro? Se borran estadísticas, falladas y simulacros.</span><button class="btn" id="yes" style="flex:none;padding:10px 16px">Borrar</button><button class="btn ghost" id="no" style="flex:none;padding:10px 16px">Cancelar</button></div>`;
+    document.getElementById("yes").onclick=()=>{S={q:{},sims:[]};save();statsView()};
+    document.getElementById("no").onclick=statsView;
+  };
+}
+home();
+</script>
+
+</body>
+</html>
